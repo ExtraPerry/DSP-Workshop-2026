@@ -103,7 +103,7 @@ with check ( auth_id = auth.uid() );
 -- USER ROLES TABLE.
 ---------------------------------------
 
--- VISITOR : Default user role with default permissions.
+-- USER : Default user role with default permissions.
 -- ADMINISTRATOR : The Admin that manages the website.
 create type public.user_roles_type as enum ('USER', 'ADMIN');
 
@@ -196,8 +196,8 @@ create table public.friend_pairs (
   updated_at timestamp with time zone not null default now(),
 
   -- Foreign Keys & Relations
-  requestor_user_id uuid unique not null references public.users(id) on delete cascade,
-  receiver_user_id uuid unique not null references public.users(id) on delete cascade,
+  requestor_user_id uuid not null references public.users(id) on delete cascade,
+  receiver_user_id uuid not null references public.users(id) on delete cascade
 
   -- Users Skills Data
   -- ...
@@ -233,8 +233,8 @@ create table public.friend_requests (
   updated_at timestamp with time zone not null default now(),
 
   -- Foreign Keys & Relations
-  requestor_user_id uuid unique not null references public.users(id) on delete cascade,
-  receiver_user_id uuid unique not null references public.users(id) on delete cascade,
+  requestor_user_id uuid not null references public.users(id) on delete cascade,
+  receiver_user_id uuid not null references public.users(id) on delete cascade
 
   -- Users Skills Data
   -- ...
@@ -258,6 +258,40 @@ using (
 );
 
 ---------------------------------------
+-- SKILLS TABLE.
+---------------------------------------
+
+create table public.skills (
+  -- Primary Key
+  id uuid primary key default gen_random_uuid(),
+
+  -- Timestamps & Ownership
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone not null default now(),
+
+  -- Foreign Keys & Relations
+  -- ...
+
+  -- Skills Data
+  name_fr text not null,
+  name_en text default null
+);
+
+comment on table public.skills is 'The table representing all known skills inside of the database, leaving enough dynamic operation for some to be added or removed over time as needed.';
+
+create trigger enforce_skills_timestamps
+  before insert or update on public.skills
+  for each row execute function enforce_table_timestamps();
+
+alter table public.skills enable row level security;
+
+create policy "Authenticated users can view skills"
+on public.skills
+for select
+to authenticated
+using ( true );
+
+---------------------------------------
 -- USERS SKILLS TABLE.
 ---------------------------------------
 
@@ -270,10 +304,11 @@ create table public.users_skills (
   updated_at timestamp with time zone not null default now(),
 
   -- Foreign Keys & Relations
-  user_id uuid unique not null references public.users(id) on delete cascade,
-  skill_id uuid unique not null references public.skills(id) on delete cascade,
+  user_id uuid not null references public.users(id) on delete cascade,
+  skill_id uuid not null references public.skills(id) on delete cascade,
 
   -- Users Skills Data
+  constraint unique_user_skill unique (user_id, skill_id),
   user_skill_level numeric(4,2) not null check (user_skill_level >= 0 and user_skill_level <= 10),
   user_skill_description text
 );
@@ -465,7 +500,7 @@ create table public.users_campuses (
 
   -- Foreign Keys & Relations
   user_id uuid not null references public.users(id) on delete cascade,
-  campus_id uuid not null references public.campuses(id) on delete cascade,
+  campus_id uuid not null references public.campuses(id) on delete cascade
 
   -- Users Campuses Data
   -- ...
