@@ -1,0 +1,14 @@
+{
+  "MetaData": {
+    "title": "Template Website",
+    "description": "A template website made for myself for use in starting a project quickly from scratch."
+  },
+  "Pages": {
+    "NotFoundPage": {
+      "title": "This page could not be found."
+    },
+    "HomePage": {
+      "hello_world": "Hello World"
+    }
+  }
+}

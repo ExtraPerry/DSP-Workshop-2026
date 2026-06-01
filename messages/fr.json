@@ -1,0 +1,14 @@
+{
+  "MetaData": {
+    "title": "Site Web Template",
+    "description": "Un template de site web créer pour facilité mes créations de project rapidement à partir de rien."
+  },
+  "Pages": {
+    "NotFoundPage": {
+      "title": "Cette page n'a pas pu être trouvé."
+    },
+    "HomePage": {
+      "hello_world": "Bonjour le Monde"
+    }
+  }
+}
