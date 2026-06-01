@@ -9,6 +9,45 @@
     },
     "HomePage": {
       "hello_world": "Bonjour le Monde"
+    },
+    "LoginPage": {
+      "title": "Connexion",
+      "email_label": "Email",
+      "password_label": "Mot de passe",
+      "submit_button": "Se connecter",
+      "no_account": "Vous n'avez pas de compte ?",
+      "register_link": "Créer un compte",
+      "errors": {
+        "invalid_credentials": "Email ou mot de passe invalide.",
+        "email_required": "L'email est requis.",
+        "email_invalid": "Veuillez entrer un email valide.",
+        "password_required": "Le mot de passe est requis.",
+        "password_too_short": "Le mot de passe doit contenir au moins 8 caractères."
+      }
+    },
+    "VerifyEmailPage": {
+      "title": "Vérifiez votre email",
+      "description": "Nous avons envoyé un lien de vérification à votre adresse email. Veuillez consulter votre boîte de réception et cliquer sur le lien pour activer votre compte.",
+      "check_spam": "Si vous ne voyez pas l'email, vérifiez votre dossier spam.",
+      "back_to_login": "Retour à la connexion"
+    },
+    "RegisterPage": {
+      "title": "Créer un compte",
+      "email_label": "Email",
+      "password_label": "Mot de passe",
+      "confirm_password_label": "Confirmer le mot de passe",
+      "submit_button": "Créer un compte",
+      "has_account": "Vous avez déjà un compte ?",
+      "login_link": "Se connecter",
+      "success_message": "Compte créé ! Veuillez vérifier votre email pour confirmer votre compte.",
+      "errors": {
+        "email_required": "L'email est requis.",
+        "email_invalid": "Veuillez entrer un email valide.",
+        "password_required": "Le mot de passe est requis.",
+        "password_too_short": "Le mot de passe doit contenir au moins 8 caractères.",
+        "confirm_password_required": "Veuillez confirmer votre mot de passe.",
+        "passwords_mismatch": "Les mots de passe ne correspondent pas."
+      }
     }
   }
 }

@@ -1,19 +1,12 @@
-"use server"
+import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
 
-import { getTranslations, setRequestLocale } from "next-intl/server";
-
-export default async function LocaleNotFound({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
+export default async function LocaleNotFound() {
+  const locale = await getLocale();
   const t = await getTranslations({
     locale: locale,
     namespace: "Pages.NotFoundPage",
   });
 
-  // Enable static rendering
   setRequestLocale(locale);
 
   return (

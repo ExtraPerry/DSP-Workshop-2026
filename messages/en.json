@@ -9,6 +9,45 @@
     },
     "HomePage": {
       "hello_world": "Hello World"
+    },
+    "LoginPage": {
+      "title": "Sign In",
+      "email_label": "Email",
+      "password_label": "Password",
+      "submit_button": "Sign In",
+      "no_account": "Don't have an account?",
+      "register_link": "Create one",
+      "errors": {
+        "invalid_credentials": "Invalid email or password.",
+        "email_required": "Email is required.",
+        "email_invalid": "Please enter a valid email.",
+        "password_required": "Password is required.",
+        "password_too_short": "Password must be at least 8 characters."
+      }
+    },
+    "VerifyEmailPage": {
+      "title": "Check your email",
+      "description": "We've sent a verification link to your email address. Please check your inbox and click the link to activate your account.",
+      "check_spam": "If you don't see the email, check your spam folder.",
+      "back_to_login": "Back to Sign In"
+    },
+    "RegisterPage": {
+      "title": "Create Account",
+      "email_label": "Email",
+      "password_label": "Password",
+      "confirm_password_label": "Confirm Password",
+      "submit_button": "Create Account",
+      "has_account": "Already have an account?",
+      "login_link": "Sign in",
+      "success_message": "Account created! Please check your email to verify your account.",
+      "errors": {
+        "email_required": "Email is required.",
+        "email_invalid": "Please enter a valid email.",
+        "password_required": "Password is required.",
+        "password_too_short": "Password must be at least 8 characters.",
+        "confirm_password_required": "Please confirm your password.",
+        "passwords_mismatch": "Passwords do not match."
+      }
     }
   }
 }

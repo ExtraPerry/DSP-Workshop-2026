@@ -71,7 +71,7 @@ Genre d'actionsc possibles :
 - home (/)
 - login (/login)
 - register (/register)
+- verify email (/verify-email)
 - profile (/profile/${uuid})
 - campus (/campus/${uuid})
 - courses (/courses/${uuid})
-- 
