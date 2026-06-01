@@ -1,10 +1,12 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
+import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { loginWithEmail } from "@/lib/supabase/auth/loginWithEmail";
+import { CURRENT_USER_QUERY_KEY } from "@/hooks/useCurrentUser";
 import { useRouter, Link } from "@/i18n/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -32,6 +34,7 @@ function extractErrorMessages(errors: unknown[]): string {
 export default function LoginForm() {
   const t = useTranslations("Pages.LoginPage");
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const form = useForm({
     defaultValues: {
@@ -46,6 +49,7 @@ export default function LoginForm() {
         return;
       }
 
+      queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
       router.push("/");
       router.refresh();
     },

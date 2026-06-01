@@ -1,4 +1,13 @@
 {
+  "Components": {
+    "Navbar": {
+      "home": "Home",
+      "contact": "Contact",
+      "about": "About",
+      "faq": "FAQ",
+      "logout": "Sign Out"
+    }
+  },
   "MetaData": {
     "title": "Template Website",
     "description": "A template website made for myself for use in starting a project quickly from scratch."
