@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@/i18n/navigation";
 import { CircleUser, LogOut } from "lucide-react";
-import { useCurrentUser, CURRENT_USER_QUERY_KEY } from "@/hooks/useCurrentUser";
+import { useCurrentUser, CURRENT_USER_QUERY_KEY } from "@/hooks/use-current-user";
 import { logout } from "@/lib/supabase/auth/logout";
 import { Button } from "@/components/ui/button";
 import {

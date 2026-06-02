@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import createSupabaseBrowserClient from "@/lib/supabase/createSupabaseBrowserClient";
+import createSupabaseBrowserClient from "@/lib/supabase/create-supabase-browser-client";
 
 const CURRENT_USER_QUERY_KEY = ["currentUser"] as const;
 const THIRTY_MINUTES_IN_MS = 30 * 60 * 1000;

@@ -1,8 +1,8 @@
 "use server";
 
-import createSupabaseServerClient from "@/lib/supabase/createSupabaseServerClient";
+import createSupabaseServerClient from "@/lib/supabase/create-supabase-server-client";
 
-export async function registerWithEmail({
+export async function loginWithEmail({
   email,
   password,
 }: {
@@ -11,13 +11,13 @@ export async function registerWithEmail({
 }): Promise<{ error: string | null }> {
   const supabase = await createSupabaseServerClient();
 
-  const { error } = await supabase.auth.signUp({
+  const { error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: "invalid_credentials" };
   }
 
   return { error: null };

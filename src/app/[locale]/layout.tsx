@@ -7,6 +7,7 @@ import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { TanstackQueryClient } from "@/contexts/tanstack-query-client";
+import { ThemeProvider } from "@/contexts/theme-provider";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const figtree = Figtree({
@@ -54,12 +55,19 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   return (
-    <html className="h-full" lang={locale}>
+    <html className="h-full" lang={locale} suppressHydrationWarning>
       <body className={cn(`${figtree.className} font-figtree antialiased`, "")}>
         <TanstackQueryClient>
           <NextIntlClientProvider>
-            {children}
-            <Toaster position="bottom-right" />
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+              <Toaster position="bottom-right" />
+            </ThemeProvider>
           </NextIntlClientProvider>
           <ReactQueryDevtools initialIsOpen={false} />
         </TanstackQueryClient>

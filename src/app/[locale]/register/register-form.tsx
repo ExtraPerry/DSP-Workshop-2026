@@ -1,12 +1,10 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { loginWithEmail } from "@/lib/supabase/auth/loginWithEmail";
-import { CURRENT_USER_QUERY_KEY } from "@/hooks/useCurrentUser";
+import { registerWithEmail } from "@/lib/supabase/auth/register-with-email";
 import { useRouter, Link } from "@/i18n/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -31,27 +29,28 @@ function extractErrorMessages(errors: unknown[]): string {
     .join(", ");
 }
 
-export default function LoginForm() {
-  const t = useTranslations("Pages.LoginPage");
+export default function RegisterForm() {
+  const t = useTranslations("Pages.RegisterPage");
   const router = useRouter();
-  const queryClient = useQueryClient();
 
   const form = useForm({
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
     },
     onSubmit: async ({ value }) => {
-      const result = await loginWithEmail(value);
+      const result = await registerWithEmail({
+        email: value.email,
+        password: value.password,
+      });
 
       if (result.error) {
-        toast.error(t("errors.invalid_credentials"));
+        toast.error(result.error);
         return;
       }
 
-      queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
-      router.push("/");
-      router.refresh();
+      router.push("/verify-email");
     },
   });
 
@@ -83,11 +82,11 @@ export default function LoginForm() {
             >
               {(field) => (
                 <Field data-invalid={field.state.meta.errors.length > 0 || undefined}>
-                  <FieldLabel htmlFor="login-email">
+                  <FieldLabel htmlFor="register-email">
                     {t("email_label")}
                   </FieldLabel>
                   <Input
-                    id="login-email"
+                    id="register-email"
                     type="email"
                     value={field.state.value}
                     onBlur={field.handleBlur}
@@ -114,11 +113,49 @@ export default function LoginForm() {
             >
               {(field) => (
                 <Field data-invalid={field.state.meta.errors.length > 0 || undefined}>
-                  <FieldLabel htmlFor="login-password">
+                  <FieldLabel htmlFor="register-password">
                     {t("password_label")}
                   </FieldLabel>
                   <Input
-                    id="login-password"
+                    id="register-password"
+                    type="password"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                    aria-invalid={field.state.meta.errors.length > 0 || undefined}
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <FieldError>
+                      {extractErrorMessages(field.state.meta.errors)}
+                    </FieldError>
+                  )}
+                </Field>
+              )}
+            </form.Field>
+
+            <form.Field
+              name="confirmPassword"
+              validators={{
+                onChangeListenTo: ["password"],
+                onBlur: ({ value, fieldApi }) => {
+                  const passwordValue = fieldApi.form.getFieldValue("password");
+                  if (!value) {
+                    return t("errors.confirm_password_required");
+                  }
+                  if (value !== passwordValue) {
+                    return t("errors.passwords_mismatch");
+                  }
+                  return undefined;
+                },
+              }}
+            >
+              {(field) => (
+                <Field data-invalid={field.state.meta.errors.length > 0 || undefined}>
+                  <FieldLabel htmlFor="register-confirm-password">
+                    {t("confirm_password_label")}
+                  </FieldLabel>
+                  <Input
+                    id="register-confirm-password"
                     type="password"
                     value={field.state.value}
                     onBlur={field.handleBlur}
@@ -143,9 +180,9 @@ export default function LoginForm() {
             </form.Subscribe>
 
             <p className="text-center text-sm text-muted-foreground">
-              {t("no_account")}{" "}
-              <Link href="/register" className="text-primary underline underline-offset-4 hover:opacity-80">
-                {t("register_link")}
+              {t("has_account")}{" "}
+              <Link href="/login" className="text-primary underline underline-offset-4 hover:opacity-80">
+                {t("login_link")}
               </Link>
             </p>
           </div>
