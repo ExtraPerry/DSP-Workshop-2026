@@ -2,22 +2,50 @@
   "Components": {
     "Navbar": {
       "home": "Home",
-      "contact": "Contact",
-      "about": "About",
-      "faq": "FAQ",
-      "logout": "Sign Out"
+      "matching": "Matching",
+      "sessions": "Sessions",
+      "feed": "Feed",
+      "challenges": "Challenges",
+      "friends": "Friends",
+      "notifications": "Notifications",
+      "profile": "Profile",
+      "logout": "Sign Out",
+      "login": "Sign In"
+    },
+    "ThemeToggle": {
+      "label": "Toggle theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "LanguageSwitcher": {
+      "label": "Change language",
+      "en": "English",
+      "fr": "Français"
     }
   },
   "MetaData": {
-    "title": "Template Website",
-    "description": "A template website made for myself for use in starting a project quickly from scratch."
+    "title": "SkillSwap",
+    "description": "Connect students through skills — teach, learn, and grow together."
   },
   "Pages": {
     "NotFoundPage": {
       "title": "This page could not be found."
     },
     "HomePage": {
-      "hello_world": "Hello World"
+      "hello_world": "Hello World",
+      "title": "Dashboard",
+      "welcome": "Welcome back",
+      "upcoming_sessions": "Upcoming Sessions",
+      "no_upcoming_sessions": "No upcoming sessions",
+      "recent_activity": "Recent Activity",
+      "no_recent_activity": "No recent activity yet",
+      "your_skills": "Your Skills",
+      "quick_actions": "Quick Actions",
+      "find_match": "Find a Match",
+      "create_session": "Create Session",
+      "view_feed": "View Feed",
+      "view_challenges": "View Challenges"
     },
     "LoginPage": {
       "title": "Sign In",
@@ -56,6 +84,348 @@
         "password_too_short": "Password must be at least 8 characters.",
         "confirm_password_required": "Please confirm your password.",
         "passwords_mismatch": "Passwords do not match."
+      }
+    },
+    "ProfilePage": {
+      "title": "Profile",
+      "edit_profile": "Edit Profile",
+      "skills": "Skills",
+      "courses": "Courses",
+      "campuses": "Campuses",
+      "availabilities": "Availabilities",
+      "no_skills": "No skills added yet",
+      "no_courses": "No courses added yet",
+      "no_campuses": "No campus assigned yet",
+      "no_availabilities": "No availabilities set yet",
+      "academic_level": "Academic Level",
+      "skill_level": "Level",
+      "add_friend": "Add Friend",
+      "remove_friend": "Remove Friend",
+      "pending_request": "Request Pending",
+      "accept_request": "Accept Request",
+      "friends": "Friends",
+      "member_since": "Member since",
+      "loading": "Loading profile...",
+      "not_found": "User not found"
+    },
+    "ProfileEditPage": {
+      "title": "Edit Profile",
+      "first_name": "First Name",
+      "last_name": "Last Name",
+      "email": "Email",
+      "phone": "Phone",
+      "academic_level": "Academic Level",
+      "select_level": "Select a level",
+      "save": "Save Changes",
+      "cancel": "Cancel",
+      "success": "Profile updated successfully",
+      "error": "Failed to update profile",
+      "skills_section": "Skills",
+      "add_skill": "Add Skill",
+      "select_skill": "Select a skill",
+      "skill_level": "Skill Level",
+      "skill_description": "Description (optional)",
+      "remove_skill": "Remove",
+      "courses_section": "Courses",
+      "add_course": "Add Course",
+      "select_course": "Select a course",
+      "start_date": "Start Date",
+      "end_date": "End Date",
+      "remove_course": "Remove",
+      "campuses_section": "Campuses",
+      "add_campus": "Add Campus",
+      "select_campus": "Select a campus",
+      "remove_campus": "Remove",
+      "availabilities_section": "Availabilities",
+      "add_availability": "Add Availability",
+      "start_time": "Start",
+      "end_time": "End",
+      "recurring_days": "Recurring Days",
+      "remove_availability": "Remove",
+      "errors": {
+        "first_name_required": "First name is required."
+      }
+    },
+    "FriendsPage": {
+      "title": "Friends",
+      "friends_tab": "Friends",
+      "incoming_tab": "Incoming Requests",
+      "outgoing_tab": "Sent Requests",
+      "no_friends": "No friends yet",
+      "no_incoming": "No incoming requests",
+      "no_outgoing": "No sent requests",
+      "accept": "Accept",
+      "reject": "Reject",
+      "cancel_request": "Cancel",
+      "remove_friend": "Remove",
+      "view_profile": "View Profile"
+    },
+    "MatchingPage": {
+      "title": "Find a Match",
+      "description": "Discover students who can teach you or learn from you",
+      "search_placeholder": "Search by skill...",
+      "filter_campus": "Filter by campus",
+      "filter_skill": "Filter by skill",
+      "all_campuses": "All campuses",
+      "all_skills": "All skills",
+      "no_results": "No matches found. Try adjusting your filters.",
+      "match_score": "Match Score",
+      "skill_level": "Level",
+      "can_teach": "Can teach",
+      "wants_to_learn": "Wants to learn",
+      "send_request": "Send Match Request",
+      "request_sent": "Request Sent",
+      "loading": "Finding matches..."
+    },
+    "SessionsPage": {
+      "title": "Sessions",
+      "create_session": "Create Session",
+      "no_sessions": "No sessions available",
+      "filter_status": "Filter by status",
+      "filter_type": "Filter by type",
+      "all_statuses": "All statuses",
+      "all_types": "All types",
+      "status_planned": "Planned",
+      "status_in_progress": "In Progress",
+      "status_completed": "Completed",
+      "status_cancelled": "Cancelled",
+      "participants": "Participants",
+      "organizer": "Organizer",
+      "join_session": "Join",
+      "leave_session": "Leave",
+      "loading": "Loading sessions..."
+    },
+    "SessionDetailPage": {
+      "title": "Session Details",
+      "back": "Back to Sessions",
+      "organizer": "Organizer",
+      "type": "Type",
+      "skill": "Skill",
+      "location": "Location",
+      "campus": "Campus",
+      "schedule": "Schedule",
+      "participants": "Participants",
+      "max_participants": "Max participants",
+      "status": "Status",
+      "join": "Join Session",
+      "leave": "Leave Session",
+      "cancel": "Cancel Session",
+      "not_found": "Session not found",
+      "loading": "Loading session..."
+    },
+    "SessionCreatePage": {
+      "title": "Create Session",
+      "session_title": "Title",
+      "description": "Description",
+      "type": "Session Type",
+      "select_type": "Select a type",
+      "skill": "Skill",
+      "select_skill": "Select a skill",
+      "campus": "Campus (optional)",
+      "select_campus": "Select a campus",
+      "location": "Location",
+      "max_participants": "Max Participants (optional)",
+      "start_time": "Start Time",
+      "end_time": "End Time",
+      "submit": "Create Session",
+      "cancel": "Cancel",
+      "success": "Session created successfully",
+      "error": "Failed to create session",
+      "errors": {
+        "title_required": "Title is required.",
+        "type_required": "Session type is required.",
+        "skill_required": "Skill is required.",
+        "start_required": "Start time is required.",
+        "end_required": "End time is required.",
+        "end_after_start": "End time must be after start time."
+      }
+    },
+    "FeedPage": {
+      "title": "Feed",
+      "create_post": "Create Post",
+      "no_posts": "No posts yet. Be the first to share!",
+      "filter_all": "All",
+      "filter_friends": "Friends Only",
+      "like": "Like",
+      "comment": "Comment",
+      "share": "Share",
+      "comments": "Comments",
+      "write_comment": "Write a comment...",
+      "post_comment": "Post",
+      "delete_post": "Delete",
+      "report_post": "Report",
+      "loading": "Loading feed...",
+      "post_type_achievement": "Achievement",
+      "post_type_recommendation": "Recommendation",
+      "post_type_feedback": "Feedback",
+      "visibility_public": "Public",
+      "visibility_friends": "Friends Only",
+      "post_content_placeholder": "What would you like to share?",
+      "post_title_placeholder": "Title (optional)",
+      "submit_post": "Publish",
+      "cancel": "Cancel"
+    },
+    "ChallengesPage": {
+      "title": "Challenges",
+      "active_tab": "Active",
+      "completed_tab": "Completed",
+      "no_challenges": "No challenges available",
+      "progress": "Progress",
+      "reward": "Reward",
+      "points": "points",
+      "badge_reward": "Badge",
+      "deadline": "Deadline",
+      "no_deadline": "No deadline",
+      "completed_at": "Completed",
+      "loading": "Loading challenges..."
+    },
+    "LeaderboardPage": {
+      "title": "Leaderboard",
+      "rank": "Rank",
+      "student": "Student",
+      "points": "Points",
+      "badges": "Badges",
+      "no_data": "No leaderboard data yet",
+      "loading": "Loading leaderboard..."
+    },
+    "NotificationsPage": {
+      "title": "Notifications",
+      "mark_all_read": "Mark all as read",
+      "no_notifications": "No notifications",
+      "loading": "Loading notifications..."
+    },
+    "AdminPage": {
+      "title": "Admin Dashboard",
+      "users": "Users",
+      "moderation": "Moderation",
+      "lookups": "Lookups",
+      "sessions": "Sessions",
+      "gamification": "Gamification",
+      "notifications": "Notifications",
+      "total_users": "Total Users",
+      "total_sessions": "Total Sessions",
+      "pending_reports": "Pending Reports"
+    },
+    "AdminUsersPage": {
+      "title": "User Management",
+      "search_placeholder": "Search users...",
+      "filter_role": "Filter by role",
+      "all_roles": "All roles",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "actions": "Actions",
+      "active": "Active",
+      "suspended": "Suspended",
+      "promote": "Promote to Admin",
+      "demote": "Demote to User",
+      "suspend": "Suspend",
+      "unsuspend": "Unsuspend",
+      "delete": "Delete",
+      "confirm_delete": "Are you sure you want to delete this user?",
+      "no_users": "No users found",
+      "loading": "Loading users..."
+    },
+    "AdminModerationPage": {
+      "title": "Content Moderation",
+      "no_reports": "No pending reports",
+      "reporter": "Reporter",
+      "reported_content": "Reported Content",
+      "reason": "Reason",
+      "status": "Status",
+      "resolve": "Resolve",
+      "dismiss": "Dismiss",
+      "resolution_note": "Resolution note",
+      "loading": "Loading reports..."
+    },
+    "AdminLookupsPage": {
+      "title": "Lookup Tables",
+      "skills": "Skills",
+      "courses": "Courses",
+      "campuses": "Campuses",
+      "academic_levels": "Academic Levels",
+      "session_types": "Session Types",
+      "add": "Add",
+      "edit": "Edit",
+      "delete": "Delete",
+      "name_fr": "Name (FR)",
+      "name_en": "Name (EN)",
+      "save": "Save",
+      "cancel": "Cancel",
+      "confirm_delete": "Are you sure?",
+      "no_items": "No items"
+    },
+    "AdminSessionsPage": {
+      "title": "Session Oversight",
+      "no_sessions": "No sessions",
+      "cancel_session": "Cancel Session",
+      "loading": "Loading sessions..."
+    },
+    "AdminGamificationPage": {
+      "title": "Gamification Management",
+      "badges_tab": "Badges",
+      "challenges_tab": "Challenges",
+      "point_actions_tab": "Point Actions",
+      "add_badge": "Add Badge",
+      "add_challenge": "Add Challenge",
+      "add_action": "Add Action",
+      "no_items": "No items",
+      "loading": "Loading..."
+    },
+    "AdminNotificationsPage": {
+      "title": "Broadcast Notifications",
+      "send_broadcast": "Send Broadcast",
+      "title_label": "Title",
+      "body_label": "Body",
+      "target": "Target Audience",
+      "all_users": "All Users",
+      "by_campus": "By Campus",
+      "by_course": "By Course",
+      "send": "Send",
+      "history": "Broadcast History",
+      "no_history": "No broadcasts sent yet"
+    },
+    "PrivacyPolicyPage": {
+      "title": "Privacy Policy",
+      "content": "This privacy policy explains how SkillSwap collects, uses, and protects your personal information."
+    },
+    "TermsOfServicePage": {
+      "title": "Terms of Service",
+      "content": "By using SkillSwap, you agree to these terms of service."
+    },
+    "LegalNoticePage": {
+      "title": "Legal Notice",
+      "content": "Legal information about SkillSwap and its operators."
+    },
+    "AccessibilityPage": {
+      "title": "Accessibility",
+      "content": "SkillSwap is committed to ensuring digital accessibility for people with disabilities."
+    },
+    "ContactPage": {
+      "title": "Contact Us",
+      "description": "Have a question? Get in touch with us.",
+      "name_label": "Name",
+      "email_label": "Email",
+      "message_label": "Message",
+      "submit": "Send Message",
+      "success": "Message sent successfully!"
+    },
+    "AboutPage": {
+      "title": "About SkillSwap",
+      "content": "SkillSwap connects students on the same campus by their complementary skills. Students declare what they can teach and what they want to learn, then get matched into learning sessions."
+    },
+    "FaqPage": {
+      "title": "Frequently Asked Questions",
+      "questions": {
+        "what_is": "What is SkillSwap?",
+        "what_is_answer": "SkillSwap is a platform that connects students by their skills, enabling peer-to-peer learning sessions.",
+        "how_matching": "How does matching work?",
+        "how_matching_answer": "Our algorithm pairs students who can teach a skill (level 4-5) with those who want to learn it (level 1-2).",
+        "how_points": "How do I earn points?",
+        "how_points_answer": "You earn points by completing sessions, helping others, and completing challenges.",
+        "is_free": "Is SkillSwap free?",
+        "is_free_answer": "Yes, SkillSwap is completely free for all students."
       }
     }
   }

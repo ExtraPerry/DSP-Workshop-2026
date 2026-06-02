@@ -3,18 +3,50 @@ import createIntlMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "@/i18n/routing";
 
-const PUBLIC_ROUTES = ["/login", "/register", "/verify-email"];
+const PUBLIC_ROUTES = [
+  "/",
+  "/login",
+  "/register",
+  "/verify-email",
+  "/privacy-policy",
+  "/terms-of-service",
+  "/legal-notice",
+  "/accessibility",
+  "/contact",
+  "/about",
+  "/faq",
+];
+
+const AUTH_ROUTES = ["/login", "/register", "/verify-email"];
+
+function stripLocale(pathname: string): string {
+  return pathname.replace(/^\/(en|fr)(\/|$)/, "/");
+}
 
 function isPublicRoute(pathname: string): boolean {
-  const pathnameWithoutLocale = pathname.replace(
-    /^\/(en|fr)(\/|$)/,
-    "/"
-  );
+  const pathnameWithoutLocale = stripLocale(pathname);
   return PUBLIC_ROUTES.some(
     (route) =>
       pathnameWithoutLocale === route ||
       pathnameWithoutLocale === `${route}/`
   );
+}
+
+function isAuthRoute(pathname: string): boolean {
+  const pathnameWithoutLocale = stripLocale(pathname);
+  return AUTH_ROUTES.some(
+    (route) =>
+      pathnameWithoutLocale === route ||
+      pathnameWithoutLocale === `${route}/`
+  );
+}
+
+function isAdminRoute(pathname: string): boolean {
+  const pathnameWithoutLocale = pathname.replace(
+    /^\/(en|fr)(\/|$)/,
+    "/"
+  );
+  return pathnameWithoutLocale.startsWith("/admin");
 }
 
 async function createSupabaseMiddlewareClient(request: NextRequest) {
@@ -67,14 +99,45 @@ export default async function middleware(request: NextRequest) {
     return redirectResponse;
   }
 
-  if (user && onPublicRoute) {
-    const homeUrl = request.nextUrl.clone();
-    homeUrl.pathname = "/";
-    const redirectResponse = NextResponse.redirect(homeUrl);
+  if (user && isAuthRoute(pathname)) {
+    const dashboardUrl = request.nextUrl.clone();
+    dashboardUrl.pathname = "/dashboard";
+    const redirectResponse = NextResponse.redirect(dashboardUrl);
     supabaseResponse.cookies.getAll().forEach((cookie) => {
       redirectResponse.cookies.set(cookie.name, cookie.value);
     });
     return redirectResponse;
+  }
+
+  if (user && isAdminRoute(pathname)) {
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll() {},
+        },
+      }
+    );
+
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("auth_id", user.id)
+      .single();
+
+    if (!roleData || roleData.role !== "ADMIN") {
+      const dashboardUrl = request.nextUrl.clone();
+      dashboardUrl.pathname = "/dashboard";
+      const redirectResponse = NextResponse.redirect(dashboardUrl);
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(cookie.name, cookie.value);
+      });
+      return redirectResponse;
+    }
   }
 
   const intlResponse = intlMiddleware(request);

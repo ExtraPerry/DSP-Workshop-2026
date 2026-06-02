@@ -2,22 +2,50 @@
   "Components": {
     "Navbar": {
       "home": "Accueil",
-      "contact": "Contact",
-      "about": "À propos",
-      "faq": "FAQ",
-      "logout": "Se déconnecter"
+      "matching": "Matching",
+      "sessions": "Sessions",
+      "feed": "Fil",
+      "challenges": "Défis",
+      "friends": "Amis",
+      "notifications": "Notifications",
+      "profile": "Profil",
+      "logout": "Se déconnecter",
+      "login": "Se connecter"
+    },
+    "ThemeToggle": {
+      "label": "Changer de thème",
+      "light": "Clair",
+      "dark": "Sombre",
+      "system": "Système"
+    },
+    "LanguageSwitcher": {
+      "label": "Changer de langue",
+      "en": "English",
+      "fr": "Français"
     }
   },
   "MetaData": {
-    "title": "Site Web Template",
-    "description": "Un template de site web créer pour facilité mes créations de project rapidement à partir de rien."
+    "title": "SkillSwap",
+    "description": "Connectez les étudiants par leurs compétences — enseignez, apprenez et progressez ensemble."
   },
   "Pages": {
     "NotFoundPage": {
-      "title": "Cette page n'a pas pu être trouvé."
+      "title": "Cette page n'a pas pu être trouvée."
     },
     "HomePage": {
-      "hello_world": "Bonjour le Monde"
+      "hello_world": "Bonjour le Monde",
+      "title": "Tableau de bord",
+      "welcome": "Bon retour",
+      "upcoming_sessions": "Sessions à venir",
+      "no_upcoming_sessions": "Aucune session à venir",
+      "recent_activity": "Activité récente",
+      "no_recent_activity": "Pas encore d'activité récente",
+      "your_skills": "Vos compétences",
+      "quick_actions": "Actions rapides",
+      "find_match": "Trouver un match",
+      "create_session": "Créer une session",
+      "view_feed": "Voir le fil",
+      "view_challenges": "Voir les défis"
     },
     "LoginPage": {
       "title": "Connexion",
@@ -56,6 +84,348 @@
         "password_too_short": "Le mot de passe doit contenir au moins 8 caractères.",
         "confirm_password_required": "Veuillez confirmer votre mot de passe.",
         "passwords_mismatch": "Les mots de passe ne correspondent pas."
+      }
+    },
+    "ProfilePage": {
+      "title": "Profil",
+      "edit_profile": "Modifier le profil",
+      "skills": "Compétences",
+      "courses": "Formations",
+      "campuses": "Campus",
+      "availabilities": "Disponibilités",
+      "no_skills": "Aucune compétence ajoutée",
+      "no_courses": "Aucune formation ajoutée",
+      "no_campuses": "Aucun campus assigné",
+      "no_availabilities": "Aucune disponibilité définie",
+      "academic_level": "Niveau académique",
+      "skill_level": "Niveau",
+      "add_friend": "Ajouter en ami",
+      "remove_friend": "Retirer l'ami",
+      "pending_request": "Demande en attente",
+      "accept_request": "Accepter la demande",
+      "friends": "Amis",
+      "member_since": "Membre depuis",
+      "loading": "Chargement du profil...",
+      "not_found": "Utilisateur introuvable"
+    },
+    "ProfileEditPage": {
+      "title": "Modifier le profil",
+      "first_name": "Prénom",
+      "last_name": "Nom",
+      "email": "Email",
+      "phone": "Téléphone",
+      "academic_level": "Niveau académique",
+      "select_level": "Sélectionner un niveau",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "success": "Profil mis à jour avec succès",
+      "error": "Échec de la mise à jour du profil",
+      "skills_section": "Compétences",
+      "add_skill": "Ajouter une compétence",
+      "select_skill": "Sélectionner une compétence",
+      "skill_level": "Niveau de compétence",
+      "skill_description": "Description (optionnel)",
+      "remove_skill": "Supprimer",
+      "courses_section": "Formations",
+      "add_course": "Ajouter une formation",
+      "select_course": "Sélectionner une formation",
+      "start_date": "Date de début",
+      "end_date": "Date de fin",
+      "remove_course": "Supprimer",
+      "campuses_section": "Campus",
+      "add_campus": "Ajouter un campus",
+      "select_campus": "Sélectionner un campus",
+      "remove_campus": "Supprimer",
+      "availabilities_section": "Disponibilités",
+      "add_availability": "Ajouter une disponibilité",
+      "start_time": "Début",
+      "end_time": "Fin",
+      "recurring_days": "Jours récurrents",
+      "remove_availability": "Supprimer",
+      "errors": {
+        "first_name_required": "Le prénom est requis."
+      }
+    },
+    "FriendsPage": {
+      "title": "Amis",
+      "friends_tab": "Amis",
+      "incoming_tab": "Demandes reçues",
+      "outgoing_tab": "Demandes envoyées",
+      "no_friends": "Aucun ami pour le moment",
+      "no_incoming": "Aucune demande reçue",
+      "no_outgoing": "Aucune demande envoyée",
+      "accept": "Accepter",
+      "reject": "Rejeter",
+      "cancel_request": "Annuler",
+      "remove_friend": "Retirer",
+      "view_profile": "Voir le profil"
+    },
+    "MatchingPage": {
+      "title": "Trouver un match",
+      "description": "Découvrez des étudiants qui peuvent vous enseigner ou apprendre de vous",
+      "search_placeholder": "Rechercher par compétence...",
+      "filter_campus": "Filtrer par campus",
+      "filter_skill": "Filtrer par compétence",
+      "all_campuses": "Tous les campus",
+      "all_skills": "Toutes les compétences",
+      "no_results": "Aucun match trouvé. Essayez d'ajuster vos filtres.",
+      "match_score": "Score de compatibilité",
+      "skill_level": "Niveau",
+      "can_teach": "Peut enseigner",
+      "wants_to_learn": "Souhaite apprendre",
+      "send_request": "Envoyer une demande",
+      "request_sent": "Demande envoyée",
+      "loading": "Recherche de matchs..."
+    },
+    "SessionsPage": {
+      "title": "Sessions",
+      "create_session": "Créer une session",
+      "no_sessions": "Aucune session disponible",
+      "filter_status": "Filtrer par statut",
+      "filter_type": "Filtrer par type",
+      "all_statuses": "Tous les statuts",
+      "all_types": "Tous les types",
+      "status_planned": "Planifiée",
+      "status_in_progress": "En cours",
+      "status_completed": "Terminée",
+      "status_cancelled": "Annulée",
+      "participants": "Participants",
+      "organizer": "Organisateur",
+      "join_session": "Rejoindre",
+      "leave_session": "Quitter",
+      "loading": "Chargement des sessions..."
+    },
+    "SessionDetailPage": {
+      "title": "Détails de la session",
+      "back": "Retour aux sessions",
+      "organizer": "Organisateur",
+      "type": "Type",
+      "skill": "Compétence",
+      "location": "Lieu",
+      "campus": "Campus",
+      "schedule": "Horaire",
+      "participants": "Participants",
+      "max_participants": "Participants max",
+      "status": "Statut",
+      "join": "Rejoindre la session",
+      "leave": "Quitter la session",
+      "cancel": "Annuler la session",
+      "not_found": "Session introuvable",
+      "loading": "Chargement de la session..."
+    },
+    "SessionCreatePage": {
+      "title": "Créer une session",
+      "session_title": "Titre",
+      "description": "Description",
+      "type": "Type de session",
+      "select_type": "Sélectionner un type",
+      "skill": "Compétence",
+      "select_skill": "Sélectionner une compétence",
+      "campus": "Campus (optionnel)",
+      "select_campus": "Sélectionner un campus",
+      "location": "Lieu",
+      "max_participants": "Participants max (optionnel)",
+      "start_time": "Heure de début",
+      "end_time": "Heure de fin",
+      "submit": "Créer la session",
+      "cancel": "Annuler",
+      "success": "Session créée avec succès",
+      "error": "Échec de la création de la session",
+      "errors": {
+        "title_required": "Le titre est requis.",
+        "type_required": "Le type de session est requis.",
+        "skill_required": "La compétence est requise.",
+        "start_required": "L'heure de début est requise.",
+        "end_required": "L'heure de fin est requise.",
+        "end_after_start": "L'heure de fin doit être après l'heure de début."
+      }
+    },
+    "FeedPage": {
+      "title": "Fil d'actualité",
+      "create_post": "Créer un post",
+      "no_posts": "Aucun post pour le moment. Soyez le premier à partager !",
+      "filter_all": "Tous",
+      "filter_friends": "Amis uniquement",
+      "like": "J'aime",
+      "comment": "Commenter",
+      "share": "Partager",
+      "comments": "Commentaires",
+      "write_comment": "Écrire un commentaire...",
+      "post_comment": "Publier",
+      "delete_post": "Supprimer",
+      "report_post": "Signaler",
+      "loading": "Chargement du fil...",
+      "post_type_achievement": "Réussite",
+      "post_type_recommendation": "Recommandation",
+      "post_type_feedback": "Retour d'expérience",
+      "visibility_public": "Public",
+      "visibility_friends": "Amis uniquement",
+      "post_content_placeholder": "Que souhaitez-vous partager ?",
+      "post_title_placeholder": "Titre (optionnel)",
+      "submit_post": "Publier",
+      "cancel": "Annuler"
+    },
+    "ChallengesPage": {
+      "title": "Défis",
+      "active_tab": "Actifs",
+      "completed_tab": "Terminés",
+      "no_challenges": "Aucun défi disponible",
+      "progress": "Progression",
+      "reward": "Récompense",
+      "points": "points",
+      "badge_reward": "Badge",
+      "deadline": "Date limite",
+      "no_deadline": "Pas de date limite",
+      "completed_at": "Terminé",
+      "loading": "Chargement des défis..."
+    },
+    "LeaderboardPage": {
+      "title": "Classement",
+      "rank": "Rang",
+      "student": "Étudiant",
+      "points": "Points",
+      "badges": "Badges",
+      "no_data": "Pas encore de données de classement",
+      "loading": "Chargement du classement..."
+    },
+    "NotificationsPage": {
+      "title": "Notifications",
+      "mark_all_read": "Tout marquer comme lu",
+      "no_notifications": "Aucune notification",
+      "loading": "Chargement des notifications..."
+    },
+    "AdminPage": {
+      "title": "Tableau de bord Admin",
+      "users": "Utilisateurs",
+      "moderation": "Modération",
+      "lookups": "Tables de référence",
+      "sessions": "Sessions",
+      "gamification": "Gamification",
+      "notifications": "Notifications",
+      "total_users": "Total utilisateurs",
+      "total_sessions": "Total sessions",
+      "pending_reports": "Signalements en attente"
+    },
+    "AdminUsersPage": {
+      "title": "Gestion des utilisateurs",
+      "search_placeholder": "Rechercher des utilisateurs...",
+      "filter_role": "Filtrer par rôle",
+      "all_roles": "Tous les rôles",
+      "name": "Nom",
+      "email": "Email",
+      "role": "Rôle",
+      "status": "Statut",
+      "actions": "Actions",
+      "active": "Actif",
+      "suspended": "Suspendu",
+      "promote": "Promouvoir Admin",
+      "demote": "Rétrograder Utilisateur",
+      "suspend": "Suspendre",
+      "unsuspend": "Réactiver",
+      "delete": "Supprimer",
+      "confirm_delete": "Êtes-vous sûr de vouloir supprimer cet utilisateur ?",
+      "no_users": "Aucun utilisateur trouvé",
+      "loading": "Chargement des utilisateurs..."
+    },
+    "AdminModerationPage": {
+      "title": "Modération de contenu",
+      "no_reports": "Aucun signalement en attente",
+      "reporter": "Signaleur",
+      "reported_content": "Contenu signalé",
+      "reason": "Raison",
+      "status": "Statut",
+      "resolve": "Résoudre",
+      "dismiss": "Rejeter",
+      "resolution_note": "Note de résolution",
+      "loading": "Chargement des signalements..."
+    },
+    "AdminLookupsPage": {
+      "title": "Tables de référence",
+      "skills": "Compétences",
+      "courses": "Formations",
+      "campuses": "Campus",
+      "academic_levels": "Niveaux académiques",
+      "session_types": "Types de sessions",
+      "add": "Ajouter",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "name_fr": "Nom (FR)",
+      "name_en": "Nom (EN)",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "confirm_delete": "Êtes-vous sûr ?",
+      "no_items": "Aucun élément"
+    },
+    "AdminSessionsPage": {
+      "title": "Supervision des sessions",
+      "no_sessions": "Aucune session",
+      "cancel_session": "Annuler la session",
+      "loading": "Chargement des sessions..."
+    },
+    "AdminGamificationPage": {
+      "title": "Gestion de la gamification",
+      "badges_tab": "Badges",
+      "challenges_tab": "Défis",
+      "point_actions_tab": "Actions de points",
+      "add_badge": "Ajouter un badge",
+      "add_challenge": "Ajouter un défi",
+      "add_action": "Ajouter une action",
+      "no_items": "Aucun élément",
+      "loading": "Chargement..."
+    },
+    "AdminNotificationsPage": {
+      "title": "Notifications de diffusion",
+      "send_broadcast": "Envoyer une diffusion",
+      "title_label": "Titre",
+      "body_label": "Corps",
+      "target": "Audience cible",
+      "all_users": "Tous les utilisateurs",
+      "by_campus": "Par campus",
+      "by_course": "Par formation",
+      "send": "Envoyer",
+      "history": "Historique des diffusions",
+      "no_history": "Aucune diffusion envoyée"
+    },
+    "PrivacyPolicyPage": {
+      "title": "Politique de confidentialité",
+      "content": "Cette politique de confidentialité explique comment SkillSwap collecte, utilise et protège vos informations personnelles."
+    },
+    "TermsOfServicePage": {
+      "title": "Conditions d'utilisation",
+      "content": "En utilisant SkillSwap, vous acceptez ces conditions d'utilisation."
+    },
+    "LegalNoticePage": {
+      "title": "Mentions légales",
+      "content": "Informations légales sur SkillSwap et ses opérateurs."
+    },
+    "AccessibilityPage": {
+      "title": "Accessibilité",
+      "content": "SkillSwap s'engage à garantir l'accessibilité numérique pour les personnes en situation de handicap."
+    },
+    "ContactPage": {
+      "title": "Nous contacter",
+      "description": "Vous avez une question ? Contactez-nous.",
+      "name_label": "Nom",
+      "email_label": "Email",
+      "message_label": "Message",
+      "submit": "Envoyer le message",
+      "success": "Message envoyé avec succès !"
+    },
+    "AboutPage": {
+      "title": "À propos de SkillSwap",
+      "content": "SkillSwap connecte les étudiants d'un même campus par leurs compétences complémentaires. Les étudiants déclarent ce qu'ils peuvent enseigner et ce qu'ils souhaitent apprendre, puis sont mis en relation pour des sessions d'apprentissage."
+    },
+    "FaqPage": {
+      "title": "Questions fréquentes",
+      "questions": {
+        "what_is": "Qu'est-ce que SkillSwap ?",
+        "what_is_answer": "SkillSwap est une plateforme qui connecte les étudiants par leurs compétences, permettant des sessions d'apprentissage entre pairs.",
+        "how_matching": "Comment fonctionne le matching ?",
+        "how_matching_answer": "Notre algorithme met en relation les étudiants qui peuvent enseigner une compétence (niveau 4-5) avec ceux qui souhaitent l'apprendre (niveau 1-2).",
+        "how_points": "Comment gagner des points ?",
+        "how_points_answer": "Vous gagnez des points en complétant des sessions, en aidant les autres et en relevant des défis.",
+        "is_free": "SkillSwap est-il gratuit ?",
+        "is_free_answer": "Oui, SkillSwap est entièrement gratuit pour tous les étudiants."
       }
     }
   }

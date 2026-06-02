@@ -3,7 +3,17 @@
 import { useTranslations } from "next-intl";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@/i18n/navigation";
-import { CircleUser, LogOut } from "lucide-react";
+import {
+  CircleUser,
+  LogOut,
+  LogIn,
+  Zap,
+  Calendar,
+  BookOpen,
+  Trophy,
+  Users,
+  Bell,
+} from "lucide-react";
 import { useCurrentUser, CURRENT_USER_QUERY_KEY } from "@/hooks/use-current-user";
 import { logout } from "@/lib/supabase/auth/logout";
 import { Button } from "@/components/ui/button";
@@ -13,12 +23,17 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
 } from "@/components/ui/navigation-menu";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 const navigationLinks = [
-  { href: "/home", labelKey: "home" as const },
-  { href: "/contact", labelKey: "contact" as const },
-  { href: "/about", labelKey: "about" as const },
-  { href: "/faq", labelKey: "faq" as const },
+  { href: "/dashboard", labelKey: "home", icon: null },
+  { href: "/matching", labelKey: "matching", icon: Zap },
+  { href: "/sessions", labelKey: "sessions", icon: Calendar },
+  { href: "/feed", labelKey: "feed", icon: BookOpen },
+  { href: "/challenges", labelKey: "challenges", icon: Trophy },
+  { href: "/friends", labelKey: "friends", icon: Users },
+  { href: "/notifications", labelKey: "notifications", icon: Bell },
 ] as const;
 
 function formatDisplayName(
@@ -47,54 +62,86 @@ export function Navbar() {
         className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
         aria-label="Main navigation"
       >
-        <div
-          className="size-10 shrink-0 rounded-lg bg-orange-200"
-          aria-hidden
-        />
+        <Link href="/dashboard" className="shrink-0">
+          <span className="text-lg font-bold text-primary">SkillSwap</span>
+        </Link>
 
         <NavigationMenu>
           <NavigationMenuList>
-            {navigationLinks.map((navigationLink) => (
-              <NavigationMenuItem key={navigationLink.href}>
-                <NavigationMenuLink asChild>
-                  <Link href={navigationLink.href}>
-                    {translations(navigationLink.labelKey)}
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            ))}
+            {navigationLinks.map((navigationLink) => {
+              const Icon = navigationLink.icon;
+              return (
+                <NavigationMenuItem key={navigationLink.href}>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href={navigationLink.href}
+                      className="flex items-center gap-1.5"
+                    >
+                      {Icon && <Icon className="size-4" />}
+                      <span className="hidden lg:inline">
+                        {translations(navigationLink.labelKey)}
+                      </span>
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              );
+            })}
           </NavigationMenuList>
         </NavigationMenu>
 
-        {!isCurrentUserLoading && currentUser && (
-          <div className="flex shrink-0 items-center gap-3">
-            <div className="flex items-center gap-2">
-              <CircleUser className="size-8 text-muted-foreground" />
-              <div className="flex flex-col">
-                {displayName && (
-                  <span className="text-sm font-medium leading-tight">
-                    {displayName}
-                  </span>
-                )}
-                {currentUser.email && (
-                  <span className="text-xs leading-tight text-muted-foreground">
-                    {currentUser.email}
-                  </span>
-                )}
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                queryClient.setQueryData(CURRENT_USER_QUERY_KEY, null);
-                logout();
-              }}
-            >
-              <LogOut className="size-4" />
-              {translations("logout")}
-            </Button>
+        <div className="flex shrink-0 items-center gap-3">
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
+            <LanguageSwitcher />
           </div>
-        )}
+
+          {!isCurrentUserLoading && currentUser && (
+            <div className="flex items-center gap-3">
+              <Link
+                href={`/profile/${currentUser.id}`}
+                className="flex items-center gap-2 transition-colors hover:text-primary"
+              >
+                <CircleUser className="size-8 text-muted-foreground" />
+                <div className="hidden flex-col sm:flex">
+                  {displayName && (
+                    <span className="text-sm font-medium leading-tight">
+                      {displayName}
+                    </span>
+                  )}
+                  {currentUser.email && (
+                    <span className="text-xs leading-tight text-muted-foreground">
+                      {currentUser.email}
+                    </span>
+                  )}
+                </div>
+              </Link>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  queryClient.setQueryData(CURRENT_USER_QUERY_KEY, null);
+                  logout();
+                }}
+              >
+                <LogOut className="size-4" />
+                <span className="hidden sm:inline">
+                  {translations("logout")}
+                </span>
+              </Button>
+            </div>
+          )}
+
+          {!isCurrentUserLoading && !currentUser && (
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/login">
+                <LogIn className="size-4" />
+                <span className="hidden sm:inline">
+                  {translations("login")}
+                </span>
+              </Link>
+            </Button>
+          )}
+        </div>
       </nav>
     </header>
   );

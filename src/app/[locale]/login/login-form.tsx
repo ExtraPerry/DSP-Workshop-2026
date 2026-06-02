@@ -50,7 +50,7 @@ export default function LoginForm() {
       }
 
       queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
-      router.push("/");
+      router.push("/dashboard");
       router.refresh();
     },
   });

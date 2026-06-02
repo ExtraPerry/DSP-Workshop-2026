@@ -37,7 +37,9 @@ DSP-Workshop-2026/
 │   │       ├── not-found.tsx     # Locale-aware 404
 │   │       ├── (main)/           # Authenticated route group (renders Navbar)
 │   │       │   ├── layout.tsx    # Wraps children with <Navbar />
-│   │       │   └── page.tsx      # Home page
+│   │       │   ├── page.tsx      # Blank landing page ("/")
+│   │       │   └── dashboard/
+│   │       │       └── page.tsx  # Home dashboard (default page for logged-in users)
 │   │       ├── login/
 │   │       │   ├── page.tsx
 │   │       │   └── login-form.tsx
@@ -146,6 +148,23 @@ The provider tree is defined in `src/app/[locale]/layout.tsx`:
 | `campuses` | Lookup table for campuses (bilingual) |
 | `friend_pairs` | Confirmed friendship relation between two users |
 | `friend_requests` | Pending friend request from one user to another |
+| `match_requests` | Records a match attempt from one user to another for a specific skill |
+| `match_history` | Records completed/resolved match interactions for analytics and feedback |
+| `session_types` | Extensible lookup table for session categories (workshop, quick course, thematic club, etc.) |
+| `sessions` | A scheduled learning session organized by a user |
+| `session_participants` | Join table tracking who attends each session and in what role |
+| `badges` | Lookup table of all available badges that users can earn |
+| `user_badges` | Tracks which badges a user has earned |
+| `point_actions` | Lookup table defining how many points each type of action awards |
+| `user_points_ledger` | Append-only log of all points earned (total = SUM) |
+| `challenges` | System-defined challenges (quests) that users can complete for rewards |
+| `user_challenges` | Tracks individual user progress toward each challenge |
+| `posts` | Social feed posts (achievements, recommendations, feedback) |
+| `post_likes` | Likes on posts (one per user per post) |
+| `post_comments` | Comments on posts |
+| `post_shares` | Shares/reposts of posts |
+| `notifications` | In-app notification system (created by edge functions or triggers) |
+| `content_reports` | User-submitted reports on posts or comments for moderation review |
 
 #### Enums
 
@@ -153,6 +172,23 @@ The provider tree is defined in `src/app/[locale]/layout.tsx`:
 |---|---|
 | `user_roles_type` | `USER`, `ADMIN` |
 | `week_day_type` | `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY` |
+| `match_request_status_type` | `PENDING`, `ACCEPTED`, `REJECTED`, `CANCELLED` |
+| `match_outcome_type` | `COMPLETED`, `EXPIRED`, `WITHDRAWN` |
+| `session_status_type` | `PLANNED`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED` |
+| `session_participant_role_type` | `ORGANIZER`, `TEACHER`, `LEARNER` |
+| `challenge_status_type` | `IN_PROGRESS`, `COMPLETED`, `FAILED`, `EXPIRED` |
+| `post_type` | `ACHIEVEMENT`, `RECOMMENDATION`, `FEEDBACK` |
+| `post_visibility_type` | `PUBLIC`, `FRIENDS_ONLY` |
+| `notification_type` | `MATCH_REQUEST`, `MATCH_ACCEPTED`, `SESSION_INVITE`, `SESSION_REMINDER`, `BADGE_EARNED`, `CHALLENGE_COMPLETED`, `FRIEND_REQUEST`, `POST_LIKE`, `POST_COMMENT`, `POST_SHARE`, `ADMIN_BROADCAST`, `ACCOUNT_SUSPENDED`, `CONTENT_REMOVED` |
+| `report_status_type` | `PENDING`, `RESOLVED`, `DISMISSED` |
+
+#### Edge Functions
+
+| Function | Purpose |
+|---|---|
+| `match-students` | Compute and return ranked match suggestions for a user based on complementary skill levels and shared campuses |
+| `award-points` | Insert points ledger entry, check badges, update challenge progress after qualifying actions |
+| `check-badge-criteria` | Evaluate badge rules against user activity and award newly-met badges |
 
 #### Helper Functions
 
@@ -167,16 +203,22 @@ The provider tree is defined in `src/app/[locale]/layout.tsx`:
 
 - Every table has RLS enabled.
 - Users can view/modify their own rows (scoped via `auth_id = auth.uid()` or subquery on `public.users`).
-- Lookup tables (academic_levels, skills, courses, campuses) are readable by all authenticated users.
+- Lookup tables (academic_levels, skills, courses, campuses, session_types, badges, point_actions, challenges) are readable by all authenticated users.
+- Sessions, posts (with visibility rules), leaderboard data are readable by all authenticated users.
+- FRIENDS_ONLY posts are only visible to the author's friends (resolved via `friend_pairs`).
 - Admins have full access (`for all`) on every table, gated by `public.is_user_admin()`.
+- Only edge functions (via service role) can INSERT into `user_points_ledger` and `user_badges`.
 
 ### 3.6 Authentication & Route Protection
 
 - **Middleware (`src/proxy.ts`)**: This file is the single entry point for both auth gating and i18n. It builds a Supabase server client from the request cookies, calls `supabase.auth.getUser()`, and:
   - Redirects **unauthenticated** users to `/login` for any route not in `PUBLIC_ROUTES`.
-  - Redirects **authenticated** users away from public auth routes back to `/`.
+  - Redirects **authenticated** users away from auth routes (`/login`, `/register`, `/verify-email`, defined in `AUTH_ROUTES`) to `/dashboard`.
   - Otherwise delegates to the next-intl middleware, forwarding refreshed auth cookies on every response.
-- **Public routes**: defined by the `PUBLIC_ROUTES` constant in `src/proxy.ts` (`/login`, `/register`, `/verify-email`). Add any new unauthenticated route here.
+- **Public routes**: defined by the `PUBLIC_ROUTES` constant in `src/proxy.ts` (`/`, `/login`, `/register`, `/verify-email`, `/privacy-policy`, `/terms-of-service`, `/legal-notice`, `/accessibility`, `/contact`, `/about`, `/faq`). Add any new unauthenticated route here.
+- **Auth routes**: defined by the `AUTH_ROUTES` constant in `src/proxy.ts` (`/login`, `/register`, `/verify-email`). Authenticated users visiting these are redirected to `/dashboard`.
+- **Default authenticated page**: `/dashboard` is the home dashboard logged-in users land on (after login and from the navbar logo/home link). The `/` route is a blank landing page placeholder.
+- **Admin routes**: routes starting with `/admin` are protected by an additional middleware check in `src/proxy.ts` that queries the `user_roles` table and redirects non-admin users to `/dashboard`.
 - **Auth server actions**: live in `src/lib/supabase/auth/` (`login-with-email.ts`, `register-with-email.ts`, `logout.ts`). They use `"use server"` and the server Supabase client. UI never calls `supabase.auth.*` directly for sign-in/up/out -- it calls these actions.
 - **Current user on the client**: use the `useCurrentUser` hook (`src/hooks/use-current-user.ts`). It listens to `onAuthStateChange` and a Realtime channel, and exposes the `public.users` row via TanStack Query under `CURRENT_USER_QUERY_KEY`. After login/logout, invalidate or reset that key (see `login-form.tsx` and `navbar.tsx`).
 - **Auth → profile sync**: handled in the database, not the app. `handle_new_user()` creates the `public.users` + `public.user_roles` rows on sign-up; `handle_user_update()` syncs email/phone.

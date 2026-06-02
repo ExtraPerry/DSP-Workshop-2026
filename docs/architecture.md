@@ -233,7 +233,7 @@ erDiagram
 
 ---
 
-## 4. Feature Area: Matching System [TO BUILD]
+## 4. Feature Area: Matching System [DONE]
 
 ### Design Decisions
 
@@ -300,7 +300,7 @@ Records completed/resolved match interactions for analytics and feedback.
 
 ---
 
-## 5. Feature Area: Session Management [TO BUILD]
+## 5. Feature Area: Session Management [DONE]
 
 ### Design Decisions
 
@@ -380,7 +380,7 @@ Join table tracking who attends each session and in what role.
 
 ---
 
-## 6. Feature Area: Gamification [TO BUILD]
+## 6. Feature Area: Gamification [DONE]
 
 ### Design Decisions
 
@@ -520,7 +520,7 @@ Tracks individual user progress toward each challenge.
 
 ---
 
-## 7. Feature Area: Social Feed [TO BUILD]
+## 7. Feature Area: Social Feed [DONE]
 
 ### Design Decisions
 
@@ -596,7 +596,7 @@ Social feed posts.
 
 ---
 
-## 8. Feature Area: Notifications [TO BUILD]
+## 8. Feature Area: Notifications [DONE]
 
 ### Tables
 
@@ -631,7 +631,7 @@ In-app notification system. Notifications are created by edge functions or trigg
 
 ---
 
-## 9. Feature Area: Admin Console [TO BUILD]
+## 9. Feature Area: Admin Console [DONE]
 
 ### Design Decisions
 
@@ -720,45 +720,46 @@ User-submitted reports on posts or comments for moderation review.
 | `/login` | Sign in | DONE |
 | `/register` | Create account | DONE |
 | `/verify-email` | Post-registration email confirmation | DONE |
-| `/privacy-policy` | Privacy policy (static) | TO BUILD |
-| `/terms-of-service` | Terms of service (static) | TO BUILD |
-| `/legal-notice` | Legal notice (static) | TO BUILD |
-| `/accessibility` | Accessibility statement (static) | TO BUILD |
-| `/contact` | Contact form | TO BUILD |
-| `/about` | Project description | TO BUILD |
-| `/faq` | Frequently asked questions | TO BUILD |
+| `/privacy-policy` | Privacy policy (static) | DONE |
+| `/terms-of-service` | Terms of service (static) | DONE |
+| `/legal-notice` | Legal notice (static) | DONE |
+| `/accessibility` | Accessibility statement (static) | DONE |
+| `/contact` | Contact form | DONE |
+| `/about` | Project description | DONE |
+| `/faq` | Frequently asked questions | DONE |
 
 ### Authenticated Pages
 
 | Route | Purpose | Status |
 |-------|---------|--------|
-| `/` | Home dashboard (activity feed, quick stats, upcoming sessions) | TO BUILD |
-| `/profile/:uuid` | User profile (skills, availabilities, badges, stats) | TO BUILD |
-| `/profile/edit` | Edit own profile | TO BUILD |
-| `/matching` | Skill matching hub (search + algorithm suggestions) | TO BUILD |
-| `/sessions` | Browse/manage sessions | TO BUILD |
-| `/sessions/:uuid` | Session detail | TO BUILD |
-| `/sessions/create` | Create new session | TO BUILD |
-| `/feed` | Social feed (global + friends filter) | TO BUILD |
-| `/challenges` | Active challenges + progress | TO BUILD |
-| `/leaderboard` | Points ranking | TO BUILD |
-| `/notifications` | Notification center | TO BUILD |
-| `/friends` | Friend list + requests | TO BUILD |
-| `/campus/:uuid` | Campus detail page | TO BUILD |
-| `/courses/:uuid` | Course detail page | TO BUILD |
+| `/` | Blank landing page (placeholder for future public content) | DONE |
+| `/dashboard` | Home dashboard (activity feed, quick stats, upcoming sessions). Default page for logged-in users. | DONE |
+| `/profile/:uuid` | User profile (skills, availabilities, badges, stats) | DONE |
+| `/profile/edit` | Edit own profile | DONE |
+| `/matching` | Skill matching hub (search + algorithm suggestions) | DONE |
+| `/sessions` | Browse/manage sessions | DONE |
+| `/sessions/:uuid` | Session detail | DONE |
+| `/sessions/create` | Create new session | DONE |
+| `/feed` | Social feed (global + friends filter) | DONE |
+| `/challenges` | Active challenges + progress | DONE |
+| `/leaderboard` | Points ranking | DONE |
+| `/notifications` | Notification center | DONE |
+| `/friends` | Friend list + requests | DONE |
+| `/campus/:uuid` | Campus detail page | DONE |
+| `/courses/:uuid` | Course detail page | DONE |
 
 ### Admin Pages (ADMIN Role Required)
 
 | Route | Purpose | Status |
 |-------|---------|--------|
-| `/admin` | Admin dashboard overview | TO BUILD |
-| `/admin/users` | User management (list, search, filter) | TO BUILD |
-| `/admin/users/:uuid` | User detail + actions (edit role, suspend, delete) | TO BUILD |
-| `/admin/moderation` | Content reports queue | TO BUILD |
-| `/admin/lookups` | Lookup tables management | TO BUILD |
-| `/admin/sessions` | Session oversight | TO BUILD |
-| `/admin/gamification` | Badges, challenges, point actions management | TO BUILD |
-| `/admin/notifications` | Broadcast notification tool | TO BUILD |
+| `/admin` | Admin dashboard overview | DONE |
+| `/admin/users` | User management (list, search, filter) | DONE |
+| `/admin/users/:uuid` | User detail + actions (edit role, suspend, delete) | DONE |
+| `/admin/moderation` | Content reports queue | DONE |
+| `/admin/lookups` | Lookup tables management | DONE |
+| `/admin/sessions` | Session oversight | DONE |
+| `/admin/gamification` | Badges, challenges, point actions management | DONE |
+| `/admin/notifications` | Broadcast notification tool | DONE |
 
 ---
 
@@ -766,13 +767,13 @@ User-submitted reports on posts or comments for moderation review.
 
 | Feature Area | Backend (DB) | Backend (Edge Functions) | Frontend |
 |--------------|:------------:|:------------------------:|:--------:|
-| Student Profile | DONE | N/A | TO BUILD (profile page) |
-| Matching System | TO BUILD | TO BUILD (`match-students`) | TO BUILD |
-| Session Management | TO BUILD | N/A | TO BUILD |
-| Gamification | TO BUILD | TO BUILD (`award-points`, `check-badge-criteria`) | TO BUILD |
-| Social Feed | TO BUILD | N/A | TO BUILD |
-| Notifications | TO BUILD | N/A | TO BUILD |
-| Admin Console | TO BUILD | N/A | TO BUILD |
+| Student Profile | DONE | N/A | DONE |
+| Matching System | DONE | DONE (`match-students`) | DONE |
+| Session Management | DONE | N/A | DONE |
+| Gamification | DONE | DONE (`award-points`, `check-badge-criteria`) | DONE |
+| Social Feed | DONE | N/A | DONE |
+| Notifications | DONE | N/A | DONE |
+| Admin Console | DONE | N/A | DONE |
 | Auth Flow | DONE | N/A | DONE |
 
 ---
