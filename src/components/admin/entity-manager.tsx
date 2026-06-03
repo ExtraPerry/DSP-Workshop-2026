@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { useQueryClient, type QueryKey } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -38,6 +38,7 @@ type EntityManagerProps<TItem extends EntityRecord> = {
   addLabel: string;
   getPrimaryText: (item: TItem) => string;
   getSecondaryText?: (item: TItem) => string;
+  renderRowExtra?: (item: TItem) => ReactNode;
 };
 
 /**
@@ -53,6 +54,7 @@ export function EntityManager<TItem extends EntityRecord>({
   addLabel,
   getPrimaryText,
   getSecondaryText,
+  renderRowExtra,
 }: EntityManagerProps<TItem>) {
   const t = useTranslations("Pages.AdminGamificationPage");
   const tCommon = useTranslations("Pages.AdminCommon");
@@ -162,17 +164,20 @@ export function EntityManager<TItem extends EntityRecord>({
           {items.map((item) => (
             <div
               key={item.id}
-              className="flex items-center justify-between rounded-md border p-3"
+              className="flex flex-col gap-3 rounded-md border p-3 sm:flex-row sm:items-center sm:justify-between"
             >
-              <div>
-                <span className="font-medium">{getPrimaryText(item)}</span>
-                {getSecondaryText && (
-                  <p className="text-sm text-muted-foreground">
-                    {getSecondaryText(item)}
-                  </p>
-                )}
+              <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
+                <div>
+                  <span className="font-medium">{getPrimaryText(item)}</span>
+                  {getSecondaryText && (
+                    <p className="text-sm text-muted-foreground">
+                      {getSecondaryText(item)}
+                    </p>
+                  )}
+                </div>
+                {renderRowExtra ? renderRowExtra(item) : null}
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 sm:shrink-0">
                 <Button
                   variant="ghost"
                   size="icon"

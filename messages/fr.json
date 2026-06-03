@@ -1,17 +1,21 @@
 {
   "Components": {
     "Navbar": {
-      "home": "Accueil",
+      "dashboard": "Dashboard",
       "matching": "Matching",
       "sessions": "Sessions",
       "feed": "Fil",
       "challenges": "Défis",
       "friends": "Amis",
       "notifications": "Notifications",
-      "profile": "Profil",
       "admin": "Admin",
-      "logout": "Se déconnecter",
       "login": "Se connecter"
+    },
+    "UserAccountMenu": {
+      "menu_label": "Menu du compte",
+      "profile": "Profil",
+      "account": "Compte",
+      "logout": "Se déconnecter"
     },
     "ThemeToggle": {
       "label": "Changer de thème",
@@ -42,8 +46,7 @@
       "faq": "FAQ",
       "contact": "Contact",
       "login": "Se connecter",
-      "register": "Commencer",
-      "logout": "Se déconnecter"
+      "register": "Commencer"
     },
     "Weekdays": {
       "MONDAY": "Lun",
@@ -53,6 +56,31 @@
       "FRIDAY": "Ven",
       "SATURDAY": "Sam",
       "SUNDAY": "Dim"
+    },
+    "SiteFooter": {
+      "tagline": "Connectez les étudiants par leurs compétences — enseignez, apprenez et progressez ensemble.",
+      "explore_heading": "Découvrir",
+      "legal_heading": "Informations légales",
+      "home": "Accueil",
+      "about": "À propos",
+      "faq": "FAQ",
+      "contact": "Contact",
+      "privacy": "Politique de confidentialité",
+      "terms": "Conditions d'utilisation",
+      "legal_notice": "Mentions légales",
+      "accessibility": "Accessibilité",
+      "cookies": "Politique des cookies",
+      "school_disclaimer": "Note : SkillSwap est un projet d'atelier scolaire (IEF2I DSP 2026), et non un produit commercial.",
+      "copyright": "© {year} SkillSwap. Tous droits réservés."
+    },
+    "LegalPages": {
+      "school_project_note": "Note : SkillSwap est un projet d'atelier scolaire réalisé pour IEF2I DSP 2026. Les informations légales ci-dessus sont fournies à titre de démonstration."
+    },
+    "CookieConsent": {
+      "aria_label": "Consentement aux cookies",
+      "message": "Nous utilisons des cookies essentiels pour la connexion, la sécurité et la préférence de langue. Aucun cookie publicitaire ni d'analyse tierce n'est utilisé.",
+      "accept": "Accepter",
+      "learn_more": "En savoir plus"
     }
   },
   "MetaData": {
@@ -165,7 +193,28 @@
       "add_campus": "Ajouter un campus",
       "add_availability": "Ajouter une disponibilité",
       "request_sent": "Demande envoyée",
-      "add_error": "Impossible d'enregistrer vos modifications."
+      "add_error": "Impossible d'enregistrer vos modifications.",
+      "completed_challenges": "Défis complétés",
+      "no_completed_challenges": "Aucun défi complété pour le moment."
+    },
+    "AccountPage": {
+      "title": "Compte",
+      "password_section_title": "Changer le mot de passe",
+      "email_label": "Email",
+      "current_password_label": "Mot de passe actuel",
+      "new_password_label": "Nouveau mot de passe",
+      "confirm_password_label": "Confirmer le nouveau mot de passe",
+      "submit_button": "Mettre à jour le mot de passe",
+      "success": "Mot de passe mis à jour avec succès",
+      "errors": {
+        "current_password_required": "Le mot de passe actuel est requis.",
+        "password_required": "Le nouveau mot de passe est requis.",
+        "password_too_short": "Le mot de passe doit contenir au moins 8 caractères.",
+        "confirm_password_required": "Veuillez confirmer votre nouveau mot de passe.",
+        "passwords_mismatch": "Les mots de passe ne correspondent pas.",
+        "invalid_current_password": "Le mot de passe actuel est incorrect.",
+        "update_failed": "Échec de la mise à jour du mot de passe. Veuillez réessayer."
+      }
     },
     "ProfileEditPage": {
       "title": "Modifier le profil",
@@ -181,6 +230,12 @@
       "cancel": "Annuler",
       "success": "Profil mis à jour avec succès",
       "error": "Échec de la mise à jour du profil",
+      "avatar_label": "Photo de profil",
+      "avatar_upload": "Choisir une photo",
+      "avatar_remove": "Supprimer la photo",
+      "avatar_invalid_type": "Veuillez choisir une image JPEG, PNG ou WebP.",
+      "avatar_too_large": "L'image doit faire 5 Mo ou moins.",
+      "avatar_upload_error": "Échec du téléversement de la photo de profil.",
       "skills_section": "Compétences",
       "add_skill": "Ajouter une compétence",
       "select_skill": "Sélectionner une compétence",
@@ -220,6 +275,12 @@
       "cancel_request": "Annuler",
       "remove_friend": "Retirer",
       "view_profile": "Voir le profil",
+      "message": "Message",
+      "message_placeholder": "Écrire un message...",
+      "send_message": "Envoyer le message",
+      "message_empty": "Aucun message pour l'instant. Dites bonjour !",
+      "message_send_failed": "Impossible d'envoyer le message. Réessayez.",
+      "message_open_failed": "Impossible d'ouvrir la conversation. Réessayez.",
       "search_title": "Trouver des personnes",
       "search_placeholder": "Rechercher par nom ou email...",
       "send_request": "Envoyer une demande",
@@ -535,7 +596,14 @@
       "field_goal_type": "Type d'objectif",
       "field_goal_count": "Nombre d'objectifs",
       "field_start_date": "Date de début",
-      "field_end_date": "Date de fin"
+      "field_end_date": "Date de fin",
+      "image_upload": "Téléverser une image",
+      "image_remove": "Supprimer l'image",
+      "image_invalid_type": "Veuillez choisir une image JPEG, PNG ou WebP.",
+      "image_upload_error": "Échec du téléversement de l'image du défi.",
+      "image_upload_success": "Image du défi mise à jour.",
+      "image_remove_error": "Échec de la suppression de l'image du défi.",
+      "image_remove_success": "Image du défi supprimée."
     },
     "AdminNotificationsPage": {
       "title": "Notifications de diffusion",
@@ -560,19 +628,121 @@
     },
     "PrivacyPolicyPage": {
       "title": "Politique de confidentialité",
-      "content": "Cette politique de confidentialité explique comment SkillSwap collecte, utilise et protège vos informations personnelles."
+      "last_updated": "Dernière mise à jour : 3 juin 2026",
+      "sections": {
+        "data_collected": {
+          "title": "Informations collectées",
+          "body": "Lorsque vous utilisez SkillSwap, nous collectons les informations que vous fournissez directement (nom, adresse e-mail, campus, détails du profil, compétences, biographie, photo de profil), les données d'utilisation liées aux sessions, au matching, à la messagerie, aux défis et aux notifications, ainsi que des données techniques telles que l'adresse IP, le type de navigateur et les journaux d'accès nécessaires à la sécurité et au fonctionnement du service."
+        },
+        "purpose": {
+          "title": "Utilisation de vos informations",
+          "body": "Nous traitons vos données pour créer et gérer votre compte, vous authentifier, vous mettre en relation avec d'autres étudiants, faciliter les sessions d'apprentissage et la messagerie directe, exploiter les fonctionnalités de gamification, envoyer des notifications de service, prévenir les abus, respecter nos obligations légales et améliorer la fiabilité et la sécurité de SkillSwap."
+        },
+        "retention": {
+          "title": "Conservation",
+          "body": "Nous conservons vos données personnelles tant que votre compte est actif et pendant une durée raisonnable par la suite pour répondre aux exigences légales, de sécurité et de règlement des litiges. Vous pouvez demander la suppression de votre compte et des données associées, sous réserve du droit applicable et des besoins légitimes de l'entreprise."
+        },
+        "rights": {
+          "title": "Vos droits",
+          "body": "Selon votre lieu de résidence, vous pouvez disposer d'un droit d'accès, de rectification, d'effacement, de limitation, de portabilité ou d'opposition à certains traitements. Vous pouvez également introduire une réclamation auprès de votre autorité de protection des données. Pour exercer vos droits, contactez-nous via la page Contact."
+        },
+        "contact": {
+          "title": "Contact",
+          "body": "Pour toute question relative à cette politique de confidentialité ou à nos pratiques en matière de données, contactez notre équipe dédiée à privacy@skillswap.example ou via le formulaire de la page Contact."
+        }
+      }
     },
     "TermsOfServicePage": {
-      "title": "Conditions d'utilisation",
-      "content": "En utilisant SkillSwap, vous acceptez ces conditions d'utilisation."
+      "title": "Conditions générales d'utilisation",
+      "last_updated": "Dernière mise à jour : 3 juin 2026",
+      "sections": {
+        "acceptance": {
+          "title": "Acceptation des conditions",
+          "body": "En créant un compte ou en utilisant SkillSwap, vous acceptez d'être lié par les présentes conditions générales et par notre politique de confidentialité. Dans le cas contraire, vous ne devez pas accéder au service ni l'utiliser."
+        },
+        "acceptable_use": {
+          "title": "Usage acceptable",
+          "body": "Vous vous engagez à utiliser SkillSwap de manière licite et respectueuse. Il est interdit de harceler, menacer ou discriminer d'autres utilisateurs, de publier des contenus illicites ou contrefaisants, de tenter d'accéder sans autorisation aux systèmes ou comptes, de diffuser des logiciels malveillants ou de perturber le fonctionnement normal de la plateforme. Vous êtes seul responsable des contenus que vous publiez."
+        },
+        "accounts": {
+          "title": "Comptes utilisateur",
+          "body": "Vous devez fournir des informations d'inscription exactes et garder vos identifiants confidentiels. Vous êtes responsable de toute activité réalisée sous votre compte. Nous pouvons suspendre ou résilier les comptes qui violent ces conditions ou présentent un risque pour la sécurité, avec ou sans préavis lorsque la loi le permet."
+        },
+        "liability": {
+          "title": "Limitation de responsabilité",
+          "body": "SkillSwap est fourni « en l'état » et « selon disponibilité ». Dans les limites autorisées par la loi, SkillSwap et ses opérateurs déclinent toute responsabilité pour les dommages indirects, accessoires ou consécutifs liés à votre utilisation du service, y compris la perte de données, des sessions manquées ou des litiges entre utilisateurs. Notre responsabilité totale ne dépassera pas le montant que vous nous avez versé au cours des douze mois précédant la réclamation, ou zéro si le service est gratuit."
+        },
+        "changes": {
+          "title": "Modification des conditions",
+          "body": "Nous pouvons mettre à jour ces conditions de temps à autre. La version révisée sera publiée sur cette page avec une date de mise à jour. Les modifications importantes pourront faire l'objet d'une notification par e-mail ou dans l'application. La poursuite de l'utilisation après la date d'effet vaut acceptation des conditions mises à jour."
+        }
+      }
     },
     "LegalNoticePage": {
       "title": "Mentions légales",
-      "content": "Informations légales sur SkillSwap et ses opérateurs."
+      "last_updated": "Dernière mise à jour : 3 juin 2026",
+      "sections": {
+        "publisher": {
+          "title": "Éditeur du site",
+          "body": "SkillSwap — 12 avenue du Campus, 75000 Paris, France. Directrice de la publication : Marie Dupont. Contact : legal@skillswap.example. Immatriculation (exemple) : RCS Paris 000 000 000."
+        },
+        "hosting": {
+          "title": "Hébergement",
+          "body": "Le site et l'application SkillSwap sont hébergés par Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis. Les données utilisateur sont stockées et traitées via Supabase (régions UE/US selon la configuration de déploiement)."
+        },
+        "intellectual_property": {
+          "title": "Propriété intellectuelle",
+          "body": "L'ensemble des marques, logos, textes, graphismes, logiciels et autres contenus présents sur SkillSwap est protégé par le droit d'auteur et les droits voisins. Toute reproduction, représentation ou exploitation sans autorisation écrite préalable est interdite."
+        },
+        "governing_law": {
+          "title": "Droit applicable",
+          "body": "Les présentes mentions légales et votre utilisation de SkillSwap sont régies par le droit français. À défaut de résolution amiable, les litiges seront portés devant les tribunaux compétents de Paris, sous réserve des dispositions impératives de protection des consommateurs applicables dans votre pays de résidence."
+        }
+      }
     },
     "AccessibilityPage": {
-      "title": "Accessibilité",
-      "content": "SkillSwap s'engage à garantir l'accessibilité numérique pour les personnes en situation de handicap."
+      "title": "Déclaration d'accessibilité",
+      "last_updated": "Dernière mise à jour : 3 juin 2026",
+      "sections": {
+        "commitment": {
+          "title": "Notre engagement",
+          "body": "SkillSwap s'engage à rendre sa plateforme accessible au plus grand nombre d'étudiants, y compris les personnes en situation de handicap. Nous travaillons continuellement à améliorer l'expérience utilisateur et à appliquer les référentiels d'accessibilité pertinents."
+        },
+        "standards": {
+          "title": "État de conformité",
+          "body": "Nous visons la conformité aux Web Content Accessibility Guidelines (WCAG) 2.1 niveau AA. Notre évaluation est en cours ; certaines parties de l'application peuvent ne pas encore satisfaire l'ensemble des critères de succès."
+        },
+        "feedback": {
+          "title": "Retours et assistance",
+          "body": "Si vous rencontrez des difficultés d'accès à une partie de SkillSwap ou souhaitez obtenir un contenu dans un format alternatif, contactez-nous à accessibility@skillswap.example ou via la page Contact. Nous nous efforçons de répondre sous cinq jours ouvrés."
+        },
+        "limitations": {
+          "title": "Environnement technique",
+          "body": "L'accessibilité peut dépendre de votre navigateur, de votre technologie d'assistance et des paramètres de votre appareil. Nous recommandons d'utiliser des versions récentes des principaux navigateurs. Les contenus tiers intégrés au service peuvent ne pas être entièrement sous notre contrôle."
+        }
+      }
+    },
+    "CookiePolicyPage": {
+      "title": "Politique des cookies",
+      "last_updated": "Dernière mise à jour : 3 juin 2026",
+      "sections": {
+        "what_are_cookies": {
+          "title": "Qu'est-ce qu'un cookie ?",
+          "body": "Les cookies sont de petits fichiers texte déposés sur votre appareil lors de la visite d'un site. Ils sont largement utilisés pour assurer le bon fonctionnement des sites, mémoriser vos préférences et maintenir des sessions sécurisées."
+        },
+        "cookies_we_use": {
+          "title": "Cookies et technologies similaires utilisés",
+          "body": "Cookies strictement nécessaires : cookies de session d'authentification (Supabase) indispensables pour vous maintenir connecté en toute sécurité. Cookies de préférence : NEXT_LOCALE enregistre la langue choisie (français ou anglais). Consentement : nous enregistrons votre choix concernant la bannière cookies dans le localStorage sous la clé skillswap-cookie-consent. SkillSwap n'utilise pas de cookies publicitaires, de reciblage ou d'analyse tiers."
+        },
+        "managing_cookies": {
+          "title": "Gestion des cookies",
+          "body": "Vous pouvez configurer votre navigateur pour bloquer ou supprimer les cookies. Le blocage des cookies strictement nécessaires vous empêchera de vous connecter et d'utiliser les fonctionnalités essentielles du service. Consultez l'aide de votre navigateur pour plus d'informations."
+        },
+        "consent": {
+          "title": "Consentement",
+          "body": "Lors de votre première visite sur SkillSwap, nous sollicitons votre consentement pour enregistrer les préférences et traces de consentement non essentielles. Les cookies essentiels restent toujours actifs car le service ne peut pas fonctionner sans eux. Vous pouvez retirer ou mettre à jour vos préférences en effaçant les données du site ou en nous contactant."
+        }
+      }
     },
     "ContactPage": {
       "title": "Nous contacter",
@@ -599,6 +769,12 @@
         "is_free": "SkillSwap est-il gratuit ?",
         "is_free_answer": "Oui, SkillSwap est entièrement gratuit pour tous les étudiants."
       }
+    }
+  },
+  "Notifications": {
+    "directMessage": {
+      "title": "Nouveau message privé",
+      "body": "Vous avez reçu un nouveau message de {sender}"
     }
   }
 }

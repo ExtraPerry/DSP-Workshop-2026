@@ -1,17 +1,21 @@
 {
   "Components": {
     "Navbar": {
-      "home": "Home",
+      "dashboard": "Dashboard",
       "matching": "Matching",
       "sessions": "Sessions",
       "feed": "Feed",
       "challenges": "Challenges",
       "friends": "Friends",
       "notifications": "Notifications",
-      "profile": "Profile",
       "admin": "Admin",
-      "logout": "Sign Out",
       "login": "Sign In"
+    },
+    "UserAccountMenu": {
+      "menu_label": "Account menu",
+      "profile": "Profile",
+      "account": "Account",
+      "logout": "Sign Out"
     },
     "ThemeToggle": {
       "label": "Toggle theme",
@@ -42,8 +46,7 @@
       "faq": "FAQ",
       "contact": "Contact",
       "login": "Sign In",
-      "register": "Get Started",
-      "logout": "Sign Out"
+      "register": "Get Started"
     },
     "Weekdays": {
       "MONDAY": "Mon",
@@ -53,6 +56,31 @@
       "FRIDAY": "Fri",
       "SATURDAY": "Sat",
       "SUNDAY": "Sun"
+    },
+    "SiteFooter": {
+      "tagline": "Connect students through skills — teach, learn, and grow together.",
+      "explore_heading": "Explore",
+      "legal_heading": "Legal",
+      "home": "Home",
+      "about": "About",
+      "faq": "FAQ",
+      "contact": "Contact",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "legal_notice": "Legal Notice",
+      "accessibility": "Accessibility",
+      "cookies": "Cookie Policy",
+      "school_disclaimer": "Note: SkillSwap is a school workshop project (IEF2I DSP 2026), not a commercial product.",
+      "copyright": "© {year} SkillSwap. All rights reserved."
+    },
+    "LegalPages": {
+      "school_project_note": "Note: SkillSwap is a school workshop project developed for IEF2I DSP 2026. The legal information above is provided for demonstration purposes."
+    },
+    "CookieConsent": {
+      "aria_label": "Cookie consent",
+      "message": "We use essential cookies for sign-in, security, and language preference. No advertising or third-party analytics cookies are used.",
+      "accept": "Accept",
+      "learn_more": "Learn more"
     }
   },
   "MetaData": {
@@ -165,7 +193,28 @@
       "add_campus": "Add a campus",
       "add_availability": "Add availability",
       "request_sent": "Request sent",
-      "add_error": "Could not save your changes."
+      "add_error": "Could not save your changes.",
+      "completed_challenges": "Completed Challenges",
+      "no_completed_challenges": "No completed challenges yet."
+    },
+    "AccountPage": {
+      "title": "Account",
+      "password_section_title": "Change password",
+      "email_label": "Email",
+      "current_password_label": "Current password",
+      "new_password_label": "New password",
+      "confirm_password_label": "Confirm new password",
+      "submit_button": "Update password",
+      "success": "Password updated successfully",
+      "errors": {
+        "current_password_required": "Current password is required.",
+        "password_required": "New password is required.",
+        "password_too_short": "Password must be at least 8 characters.",
+        "confirm_password_required": "Please confirm your new password.",
+        "passwords_mismatch": "Passwords do not match.",
+        "invalid_current_password": "Current password is incorrect.",
+        "update_failed": "Failed to update password. Please try again."
+      }
     },
     "ProfileEditPage": {
       "title": "Edit Profile",
@@ -181,6 +230,12 @@
       "cancel": "Cancel",
       "success": "Profile updated successfully",
       "error": "Failed to update profile",
+      "avatar_label": "Profile photo",
+      "avatar_upload": "Choose photo",
+      "avatar_remove": "Remove photo",
+      "avatar_invalid_type": "Please choose a JPEG, PNG, or WebP image.",
+      "avatar_too_large": "Image must be 5 MB or smaller.",
+      "avatar_upload_error": "Failed to upload profile photo.",
       "skills_section": "Skills",
       "add_skill": "Add Skill",
       "select_skill": "Select a skill",
@@ -220,6 +275,12 @@
       "cancel_request": "Cancel",
       "remove_friend": "Remove",
       "view_profile": "View Profile",
+      "message": "Message",
+      "message_placeholder": "Type a message...",
+      "send_message": "Send message",
+      "message_empty": "No messages yet. Say hello!",
+      "message_send_failed": "Could not send message. Please try again.",
+      "message_open_failed": "Could not open conversation. Please try again.",
       "search_title": "Find people",
       "search_placeholder": "Search by name or email...",
       "send_request": "Send request",
@@ -535,7 +596,14 @@
       "field_goal_type": "Goal type",
       "field_goal_count": "Goal count",
       "field_start_date": "Start date",
-      "field_end_date": "End date"
+      "field_end_date": "End date",
+      "image_upload": "Upload image",
+      "image_remove": "Remove image",
+      "image_invalid_type": "Please choose a JPEG, PNG, or WebP image.",
+      "image_upload_error": "Failed to upload challenge image.",
+      "image_upload_success": "Challenge image updated.",
+      "image_remove_error": "Failed to remove challenge image.",
+      "image_remove_success": "Challenge image removed."
     },
     "AdminNotificationsPage": {
       "title": "Broadcast Notifications",
@@ -560,19 +628,121 @@
     },
     "PrivacyPolicyPage": {
       "title": "Privacy Policy",
-      "content": "This privacy policy explains how SkillSwap collects, uses, and protects your personal information."
+      "last_updated": "Last updated: 3 June 2026",
+      "sections": {
+        "data_collected": {
+          "title": "Information we collect",
+          "body": "When you use SkillSwap, we collect information you provide directly (name, email address, campus, profile details, skills, biography, profile photo), usage data related to sessions, matching, messaging, challenges, and notifications, as well as technical data such as IP address, browser type, and access logs required to secure and operate the service."
+        },
+        "purpose": {
+          "title": "How we use your information",
+          "body": "We process your data to create and manage your account, authenticate you, match you with other students, facilitate learning sessions and direct messages, operate gamification features, send service notifications, prevent abuse, comply with legal obligations, and improve the reliability and security of SkillSwap."
+        },
+        "retention": {
+          "title": "Retention",
+          "body": "We retain your personal data for as long as your account is active and for a reasonable period thereafter to meet legal, security, and dispute-resolution requirements. You may request deletion of your account and associated data subject to applicable law and legitimate business needs."
+        },
+        "rights": {
+          "title": "Your rights",
+          "body": "Depending on your location, you may have the right to access, rectify, erase, restrict, or port your personal data, and to object to certain processing. You may also lodge a complaint with your local data protection authority. To exercise your rights, contact us using the details on our Contact page."
+        },
+        "contact": {
+          "title": "Contact",
+          "body": "For any question regarding this Privacy Policy or our data practices, please contact our privacy team at privacy@skillswap.example or via the Contact form on this website."
+        }
+      }
     },
     "TermsOfServicePage": {
       "title": "Terms of Service",
-      "content": "By using SkillSwap, you agree to these terms of service."
+      "last_updated": "Last updated: 3 June 2026",
+      "sections": {
+        "acceptance": {
+          "title": "Acceptance of terms",
+          "body": "By creating an account or using SkillSwap, you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree, you must not access or use the service."
+        },
+        "acceptable_use": {
+          "title": "Acceptable use",
+          "body": "You agree to use SkillSwap lawfully and respectfully. You must not harass, threaten, or discriminate against other users, post unlawful or infringing content, attempt to gain unauthorized access to systems or accounts, distribute malware, or interfere with the normal operation of the platform. You are solely responsible for content you publish."
+        },
+        "accounts": {
+          "title": "Accounts",
+          "body": "You must provide accurate registration information and keep your credentials confidential. You are responsible for all activity under your account. We may suspend or terminate accounts that violate these terms or pose a security risk, with or without prior notice where permitted by law."
+        },
+        "liability": {
+          "title": "Limitation of liability",
+          "body": "SkillSwap is provided on an \"as is\" and \"as available\" basis. To the fullest extent permitted by law, SkillSwap and its operators disclaim liability for indirect, incidental, or consequential damages arising from your use of the service, including loss of data, missed sessions, or disputes between users. Our total liability shall not exceed the amount you paid us in the twelve months preceding the claim, or zero if the service is free."
+        },
+        "changes": {
+          "title": "Changes to these terms",
+          "body": "We may update these Terms of Service from time to time. We will post the revised version on this page and update the \"Last updated\" date. Material changes may be notified by email or in-app notice. Continued use after the effective date constitutes acceptance of the updated terms."
+        }
+      }
     },
     "LegalNoticePage": {
       "title": "Legal Notice",
-      "content": "Legal information about SkillSwap and its operators."
+      "last_updated": "Last updated: 3 June 2026",
+      "sections": {
+        "publisher": {
+          "title": "Publisher",
+          "body": "SkillSwap — 12 Campus Avenue, 75000 Paris, France. Publication director: Marie Dupont. Contact: legal@skillswap.example. Company registration (example): RCS Paris 000 000 000."
+        },
+        "hosting": {
+          "title": "Hosting",
+          "body": "The SkillSwap website and application are hosted by Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, United States. User data is stored and processed using Supabase (EU/US regions depending on deployment configuration)."
+        },
+        "intellectual_property": {
+          "title": "Intellectual property",
+          "body": "All trademarks, logos, text, graphics, software, and other content on SkillSwap are protected by copyright and related rights. Any reproduction, representation, or exploitation without prior written authorization is prohibited."
+        },
+        "governing_law": {
+          "title": "Governing law",
+          "body": "These legal notices and your use of SkillSwap are governed by French law. In the absence of an amicable settlement, disputes shall be submitted to the competent courts of Paris, France, subject to mandatory consumer protections applicable in your country of residence."
+        }
+      }
     },
     "AccessibilityPage": {
-      "title": "Accessibility",
-      "content": "SkillSwap is committed to ensuring digital accessibility for people with disabilities."
+      "title": "Accessibility Statement",
+      "last_updated": "Last updated: 3 June 2026",
+      "sections": {
+        "commitment": {
+          "title": "Our commitment",
+          "body": "SkillSwap is committed to making our platform accessible to as many students as possible, including people with disabilities. We continually work to improve the user experience for everyone and apply relevant accessibility standards."
+        },
+        "standards": {
+          "title": "Conformance status",
+          "body": "We aim to conform to the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA. Our assessment is ongoing; some areas of the application may not yet fully meet every success criterion."
+        },
+        "feedback": {
+          "title": "Feedback and assistance",
+          "body": "If you experience difficulty accessing any part of SkillSwap, or require content in an alternative format, please contact us at accessibility@skillswap.example or through the Contact page. We will endeavour to respond within five business days."
+        },
+        "limitations": {
+          "title": "Technical environment",
+          "body": "Accessibility may depend on your browser, assistive technology, and device settings. We recommend using current versions of major browsers. Third-party content embedded in the service may not be fully under our control."
+        }
+      }
+    },
+    "CookiePolicyPage": {
+      "title": "Cookie Policy",
+      "last_updated": "Last updated: 3 June 2026",
+      "sections": {
+        "what_are_cookies": {
+          "title": "What are cookies?",
+          "body": "Cookies are small text files placed on your device when you visit a website. They are widely used to make sites work efficiently, remember preferences, and maintain secure sessions."
+        },
+        "cookies_we_use": {
+          "title": "Cookies and similar technologies we use",
+          "body": "Strictly necessary cookies: authentication session cookies (Supabase) required to keep you signed in securely. Preference cookies: NEXT_LOCALE stores your chosen language (English or French). Consent storage: we record your cookie banner choice in localStorage under the key skillswap-cookie-consent. We do not use advertising, retargeting, or third-party analytics cookies on SkillSwap."
+        },
+        "managing_cookies": {
+          "title": "How to manage cookies",
+          "body": "You can configure your browser to block or delete cookies. Please note that blocking strictly necessary cookies will prevent you from logging in and using core features of the service. For more information, consult your browser's help documentation."
+        },
+        "consent": {
+          "title": "Consent",
+          "body": "When you first visit SkillSwap, we ask for your consent to store non-essential preference and consent records. Essential cookies are always active because the service cannot function without them. You may withdraw or update your preferences by clearing site data or contacting us."
+        }
+      }
     },
     "ContactPage": {
       "title": "Contact Us",
@@ -599,6 +769,12 @@
         "is_free": "Is SkillSwap free?",
         "is_free_answer": "Yes, SkillSwap is completely free for all students."
       }
+    }
+  },
+  "Notifications": {
+    "directMessage": {
+      "title": "New direct message",
+      "body": "You received a new message from {sender}"
     }
   }
 }
