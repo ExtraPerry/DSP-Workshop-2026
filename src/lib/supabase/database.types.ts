@@ -125,6 +125,7 @@ export type Database = {
           goal_count: number
           goal_type: string
           id: string
+          image_url: string | null
           name_en: string | null
           name_fr: string
           points_reward: number
@@ -140,6 +141,7 @@ export type Database = {
           goal_count: number
           goal_type: string
           id?: string
+          image_url?: string | null
           name_en?: string | null
           name_fr: string
           points_reward?: number
@@ -155,6 +157,7 @@ export type Database = {
           goal_count?: number
           goal_type?: string
           id?: string
+          image_url?: string | null
           name_en?: string | null
           name_fr?: string
           points_reward?: number
@@ -257,6 +260,77 @@ export type Database = {
           {
             foreignKeyName: "courses_created_by_user_id_fkey"
             columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      direct_conversations: {
+        Row: {
+          created_at: string
+          friend_pair_id: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          friend_pair_id: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          friend_pair_id?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "direct_conversations_friend_pair_id_fkey"
+            columns: ["friend_pair_id"]
+            isOneToOne: true
+            referencedRelation: "friend_pairs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      direct_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          sender_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          sender_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          sender_user_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "direct_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "direct_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "direct_messages_sender_user_id_fkey"
+            columns: ["sender_user_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
@@ -1086,6 +1160,7 @@ export type Database = {
         Row: {
           academic_level_id: string | null
           auth_id: string
+          avatar_url: string | null
           bio: string | null
           created_at: string
           email: string | null
@@ -1099,6 +1174,7 @@ export type Database = {
         Insert: {
           academic_level_id?: string | null
           auth_id: string
+          avatar_url?: string | null
           bio?: string | null
           created_at?: string
           email?: string | null
@@ -1112,6 +1188,7 @@ export type Database = {
         Update: {
           academic_level_id?: string | null
           auth_id?: string
+          avatar_url?: string | null
           bio?: string | null
           created_at?: string
           email?: string | null
@@ -1328,6 +1405,7 @@ export type Database = {
         | "ADMIN_BROADCAST"
         | "ACCOUNT_SUSPENDED"
         | "CONTENT_REMOVED"
+        | "DIRECT_MESSAGE"
       post_type: "ACHIEVEMENT" | "RECOMMENDATION" | "FEEDBACK"
       post_visibility_type: "PUBLIC" | "FRIENDS_ONLY"
       report_status_type: "PENDING" | "RESOLVED" | "DISMISSED"
@@ -1491,6 +1569,7 @@ export const Constants = {
         "ADMIN_BROADCAST",
         "ACCOUNT_SUSPENDED",
         "CONTENT_REMOVED",
+        "DIRECT_MESSAGE",
       ],
       post_type: ["ACHIEVEMENT", "RECOMMENDATION", "FEEDBACK"],
       post_visibility_type: ["PUBLIC", "FRIENDS_ONLY"],

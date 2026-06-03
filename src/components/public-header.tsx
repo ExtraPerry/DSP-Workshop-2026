@@ -1,9 +1,9 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useQueryClient } from "@tanstack/react-query";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { UserAccountMenu } from "@/components/user-account-menu";
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -12,8 +12,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
-import { useCurrentUser, CURRENT_USER_QUERY_KEY } from "@/hooks/use-current-user";
-import { logout } from "@/lib/supabase/auth/logout";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { SiteBrand } from "@/components/site-brand";
 
 const navigationLinks = [
@@ -26,7 +25,6 @@ const navigationLinks = [
 export function PublicHeader() {
   const translations = useTranslations("Components.PublicHeader");
   const router = useRouter();
-  const queryClient = useQueryClient();
   const { data: currentUser, isLoading: isCurrentUserLoading } =
     useCurrentUser();
 
@@ -66,17 +64,10 @@ export function PublicHeader() {
             <Link href="/register">{translations("register")}</Link>
           </Button>
           {!isCurrentUserLoading && currentUser && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={async () => {
-                queryClient.setQueryData(CURRENT_USER_QUERY_KEY, null);
-                await logout({ redirectTo: null });
-                router.refresh();
-              }}
-            >
-              {translations("logout")}
-            </Button>
+            <UserAccountMenu
+              logoutRedirectTo={null}
+              onAfterLogout={() => router.refresh()}
+            />
           )}
         </div>
       </nav>

@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useRealtimeQuery } from "@/hooks/use-realtime-query";
 import createSupabaseBrowserClient from "@/lib/supabase/create-supabase-browser-client";
 import { Link } from "@/i18n/navigation";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/user-avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy } from "lucide-react";
@@ -13,6 +13,7 @@ interface LeaderboardEntry {
   userId: string;
   firstName: string | null;
   lastName: string | null;
+  avatarUrl: string | null;
   totalPoints: number;
   badgeCount: number;
 }
@@ -44,7 +45,7 @@ export default function LeaderboardPage() {
 
       const { data: users } = await supabase
         .from("users")
-        .select("id, first_name, last_name")
+        .select("id, first_name, last_name, avatar_url")
         .in("id", userIds);
 
       const { data: badges } = await supabase
@@ -66,6 +67,7 @@ export default function LeaderboardPage() {
           userId,
           firstName: user?.first_name ?? null,
           lastName: user?.last_name ?? null,
+          avatarUrl: user?.avatar_url ?? null,
           totalPoints: pointsByUser.get(userId) ?? 0,
           badgeCount: badgeCountByUser.get(userId) ?? 0,
         };
@@ -114,12 +116,13 @@ export default function LeaderboardPage() {
                     <span className="w-8 text-center font-bold text-muted-foreground">
                       #{index + 1}
                     </span>
-                    <Avatar className="size-8">
-                      <AvatarFallback className="text-xs">
-                        {(entry.firstName?.charAt(0) ?? "") +
-                          (entry.lastName?.charAt(0) ?? "")}
-                      </AvatarFallback>
-                    </Avatar>
+                    <UserAvatar
+                      avatarUrl={entry.avatarUrl}
+                      firstName={entry.firstName}
+                      lastName={entry.lastName}
+                      className="size-8"
+                      fallbackClassName="text-xs"
+                    />
                     <Link
                       href={`/profile/${entry.userId}`}
                       className="font-medium hover:underline"

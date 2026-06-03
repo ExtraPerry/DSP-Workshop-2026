@@ -6,7 +6,7 @@ import { useRealtimeQuery } from "@/hooks/use-realtime-query";
 
 export type FriendUser = Pick<
   Tables<"users">,
-  "id" | "first_name" | "last_name" | "email"
+  "id" | "first_name" | "last_name" | "email" | "avatar_url"
 >;
 
 export type FriendPairWithUsers = Tables<"friend_pairs"> & {
@@ -25,7 +25,7 @@ export type Friendships = {
   outgoingRequests: FriendRequestWithUsers[];
 };
 
-const FRIEND_USER_FIELDS = "id, first_name, last_name, email";
+const FRIEND_USER_FIELDS = "id, first_name, last_name, email, avatar_url";
 
 export function friendshipsQueryKey(currentUserId: string | undefined) {
   return ["friendships", currentUserId ?? null] as const;

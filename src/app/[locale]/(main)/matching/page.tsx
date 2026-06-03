@@ -12,7 +12,7 @@ import {
 import createSupabaseBrowserClient from "@/lib/supabase/create-supabase-browser-client";
 import { Link } from "@/i18n/navigation";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/user-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -170,12 +170,10 @@ export default function MatchingPage() {
             <Card key={`${suggestion.user_id}-${suggestion.skill_id}`}>
               <CardContent className="flex items-center justify-between pt-6">
                 <div className="flex items-center gap-4">
-                  <Avatar>
-                    <AvatarFallback>
-                      {(suggestion.first_name?.charAt(0) ?? "") +
-                        (suggestion.last_name?.charAt(0) ?? "")}
-                    </AvatarFallback>
-                  </Avatar>
+                  <UserAvatar
+                    firstName={suggestion.first_name}
+                    lastName={suggestion.last_name}
+                  />
                   <div>
                     <Link
                       href={`/profile/${suggestion.user_id}`}

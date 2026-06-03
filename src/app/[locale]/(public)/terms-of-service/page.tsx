@@ -1,12 +1,18 @@
-import { useTranslations } from "next-intl";
+import { LegalDocument } from "@/components/legal-document";
+
+const sectionKeys = [
+  "acceptance",
+  "acceptable_use",
+  "accounts",
+  "liability",
+  "changes",
+] as const;
 
 export default function TermsOfServicePage() {
-  const t = useTranslations("Pages.TermsOfServicePage");
-
   return (
-    <div className="mx-auto max-w-3xl space-y-6 p-6">
-      <h1 className="text-2xl font-semibold">{t("title")}</h1>
-      <p className="text-muted-foreground">{t("content")}</p>
-    </div>
+    <LegalDocument
+      translationNamespace="Pages.TermsOfServicePage"
+      sectionKeys={sectionKeys}
+    />
   );
 }

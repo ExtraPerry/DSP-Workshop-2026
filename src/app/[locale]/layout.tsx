@@ -9,6 +9,9 @@ import { cn } from "@/lib/utils";
 import { TanstackQueryClient } from "@/contexts/tanstack-query-client";
 import { ThemeProvider } from "@/contexts/theme-provider";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { SiteFooter } from "@/components/site-footer";
+import { CookieConsentBanner } from "@/components/cookie-consent-banner";
+import { getSiteUrl } from "@/lib/site-url";
 
 const figtree = Figtree({
   subsets: ["latin"],
@@ -32,6 +35,7 @@ export async function generateMetadata({
   });
 
   return {
+    metadataBase: new URL(getSiteUrl()),
     title: t("title"),
     description: t("description"),
   };
@@ -56,7 +60,12 @@ export default async function LocaleLayout({
 
   return (
     <html className="h-full" lang={locale} suppressHydrationWarning>
-      <body className={cn(`${figtree.className} font-figtree antialiased`, "")}>
+      <body
+        className={cn(
+          `${figtree.className} font-figtree antialiased min-h-screen`,
+          "",
+        )}
+      >
         <TanstackQueryClient>
           <NextIntlClientProvider>
             <ThemeProvider
@@ -65,7 +74,11 @@ export default async function LocaleLayout({
               enableSystem
               disableTransitionOnChange
             >
-              {children}
+              <div className="flex min-h-screen flex-col">
+                <div className="flex flex-1 flex-col">{children}</div>
+                <SiteFooter />
+              </div>
+              <CookieConsentBanner />
               <Toaster position="bottom-right" />
             </ThemeProvider>
           </NextIntlClientProvider>

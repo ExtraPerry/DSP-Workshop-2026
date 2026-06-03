@@ -1,6 +1,6 @@
 # SkillSwap — Feature Design & Architecture
 
-> This document is the **feature design source of truth** for SkillSwap. It defines data models, edge function contracts, RLS policies, and the frontend page inventory. For technical conventions, coding standards, and development workflows, refer to [`agent.md`](../agent.md).
+> This document is the **feature design source of truth** for SkillSwap. It defines data models, edge function contracts, RLS policies, and the frontend page inventory. For technical conventions, coding standards, and development workflows, refer to `[agent.md](../agent.md)`.
 
 ---
 
@@ -10,15 +10,17 @@
 
 ### Functional Pillars
 
-| # | Pillar | Description |
-|---|--------|-------------|
-| 1 | Student Profile | Skills, levels, availabilities, campus, courses, friends |
-| 2 | Matching System | Algorithm-driven suggestions + manual search/filter |
-| 3 | Session Management | Plan and attend workshops, quick courses, thematic clubs |
-| 4 | Gamification | Badges, points, challenges, leaderboard |
-| 5 | Social Feed | Achievements, recommendations, peer feedback |
-| 6 | Notifications | In-app notification system |
-| 7 | Admin Console | User management, moderation, lookup CRUD, broadcast |
+
+| #   | Pillar             | Description                                              |
+| --- | ------------------ | -------------------------------------------------------- |
+| 1   | Student Profile    | Skills, levels, availabilities, campus, courses, friends |
+| 2   | Matching System    | Algorithm-driven suggestions + manual search/filter      |
+| 3   | Session Management | Plan and attend workshops, quick courses, thematic clubs |
+| 4   | Gamification       | Badges, points, challenges, leaderboard                  |
+| 5   | Social Feed        | Achievements, recommendations, peer feedback             |
+| 6   | Notifications      | In-app notification system                               |
+| 7   | Admin Console      | User management, moderation, lookup CRUD, broadcast      |
+
 
 ---
 
@@ -39,6 +41,8 @@ erDiagram
 
     users ||--o{ friend_requests : sends
     users ||--o{ friend_pairs : connected
+    friend_pairs ||--o| direct_conversations : has
+    direct_conversations ||--o{ direct_messages : contains
 
     users ||--o{ match_requests : initiates
     match_requests ||--o| match_history : resolves
@@ -68,6 +72,8 @@ erDiagram
     users ||--o{ content_reports : submits
 ```
 
+
+
 ---
 
 ## 3. Feature Area: Student Profile [DONE]
@@ -76,162 +82,229 @@ erDiagram
 
 #### `users`
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK, default gen_random_uuid() | |
-| auth_id | uuid | NOT NULL, UNIQUE, FK auth.users | Link to Supabase Auth |
-| email | text | nullable | Synced from auth via trigger |
-| first_name | text | nullable | |
-| last_name | text | nullable | |
-| phone | text | nullable | Synced from auth via trigger |
-| bio | text | nullable | Free-text biography, edited from the profile edit page |
-| academic_level_id | uuid | nullable, FK academic_levels | |
-| suspended_at | timestamptz | nullable | Set by admin to suspend user |
-| created_at | timestamptz | NOT NULL, default now() | |
-| updated_at | timestamptz | NOT NULL, default now() | |
+
+| Column            | Type        | Constraints                     | Description                                            |
+| ----------------- | ----------- | ------------------------------- | ------------------------------------------------------ |
+| id                | uuid        | PK, default gen_random_uuid()   |                                                        |
+| auth_id           | uuid        | NOT NULL, UNIQUE, FK auth.users | Link to Supabase Auth                                  |
+| email             | text        | nullable                        | Synced from auth via trigger                           |
+| first_name        | text        | nullable                        |                                                        |
+| last_name         | text        | nullable                        |                                                        |
+| phone             | text        | nullable                        | Synced from auth via trigger                           |
+| bio               | text        | nullable                        | Free-text biography, edited from the profile edit page |
+| academic_level_id | uuid        | nullable, FK academic_levels    |                                                        |
+| suspended_at      | timestamptz | nullable                        | Set by admin to suspend user                           |
+| created_at        | timestamptz | NOT NULL, default now()         |                                                        |
+| updated_at        | timestamptz | NOT NULL, default now()         |                                                        |
+
 
 #### `academic_levels`
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| name_fr | text | NOT NULL | French label |
-| name_en | text | nullable | English label |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column     | Type        | Constraints | Description   |
+| ---------- | ----------- | ----------- | ------------- |
+| id         | uuid        | PK          |               |
+| name_fr    | text        | NOT NULL    | French label  |
+| name_en    | text        | nullable    | English label |
+| created_at | timestamptz | NOT NULL    |               |
+| updated_at | timestamptz | NOT NULL    |               |
+
 
 #### `skills`
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| name_fr | text | NOT NULL | French label |
-| name_en | text | nullable | English label |
-| is_verified | boolean | NOT NULL, default false | True once an admin verifies a user-proposed skill (seeded rows are verified) |
-| created_by_user_id | uuid | nullable, FK users | The user who proposed the skill, or null for seeded/admin skills |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column             | Type        | Constraints             | Description                                                                  |
+| ------------------ | ----------- | ----------------------- | ---------------------------------------------------------------------------- |
+| id                 | uuid        | PK                      |                                                                              |
+| name_fr            | text        | NOT NULL                | French label                                                                 |
+| name_en            | text        | nullable                | English label                                                                |
+| is_verified        | boolean     | NOT NULL, default false | True once an admin verifies a user-proposed skill (seeded rows are verified) |
+| created_by_user_id | uuid        | nullable, FK users      | The user who proposed the skill, or null for seeded/admin skills             |
+| created_at         | timestamptz | NOT NULL                |                                                                              |
+| updated_at         | timestamptz | NOT NULL                |                                                                              |
+
 
 User-proposable: authenticated users may insert a row with `created_by_user_id = self` and `is_verified = false`; only admins can set `is_verified = true`.
 
 #### `courses`
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| name_fr | text | NOT NULL | French label |
-| name_en | text | nullable | English label |
-| is_verified | boolean | NOT NULL, default false | True once an admin verifies a user-proposed course (seeded rows are verified) |
-| created_by_user_id | uuid | nullable, FK users | The user who proposed the course, or null for seeded/admin courses |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column             | Type        | Constraints             | Description                                                                   |
+| ------------------ | ----------- | ----------------------- | ----------------------------------------------------------------------------- |
+| id                 | uuid        | PK                      |                                                                               |
+| name_fr            | text        | NOT NULL                | French label                                                                  |
+| name_en            | text        | nullable                | English label                                                                 |
+| is_verified        | boolean     | NOT NULL, default false | True once an admin verifies a user-proposed course (seeded rows are verified) |
+| created_by_user_id | uuid        | nullable, FK users      | The user who proposed the course, or null for seeded/admin courses            |
+| created_at         | timestamptz | NOT NULL                |                                                                               |
+| updated_at         | timestamptz | NOT NULL                |                                                                               |
+
 
 #### `campuses`
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| name_fr | text | NOT NULL | French label |
-| name_en | text | nullable | English label |
-| is_verified | boolean | NOT NULL, default false | True once an admin verifies a user-proposed campus (seeded rows are verified) |
-| created_by_user_id | uuid | nullable, FK users | The user who proposed the campus, or null for seeded/admin campuses |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column             | Type        | Constraints             | Description                                                                   |
+| ------------------ | ----------- | ----------------------- | ----------------------------------------------------------------------------- |
+| id                 | uuid        | PK                      |                                                                               |
+| name_fr            | text        | NOT NULL                | French label                                                                  |
+| name_en            | text        | nullable                | English label                                                                 |
+| is_verified        | boolean     | NOT NULL, default false | True once an admin verifies a user-proposed campus (seeded rows are verified) |
+| created_by_user_id | uuid        | nullable, FK users      | The user who proposed the campus, or null for seeded/admin campuses           |
+| created_at         | timestamptz | NOT NULL                |                                                                               |
+| updated_at         | timestamptz | NOT NULL                |                                                                               |
+
 
 #### `users_skills`
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| user_id | uuid | NOT NULL, FK users | |
-| skill_id | uuid | NOT NULL, FK skills | |
-| user_skill_level | integer | NOT NULL, CHECK (1-5) | 1-2 = wants to learn, 3 = can pair, 4-5 = can teach |
-| user_skill_description | text | nullable | Free-text context about proficiency |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column                 | Type        | Constraints           | Description                                         |
+| ---------------------- | ----------- | --------------------- | --------------------------------------------------- |
+| id                     | uuid        | PK                    |                                                     |
+| user_id                | uuid        | NOT NULL, FK users    |                                                     |
+| skill_id               | uuid        | NOT NULL, FK skills   |                                                     |
+| user_skill_level       | integer     | NOT NULL, CHECK (1-5) | 1-2 = wants to learn, 3 = can pair, 4-5 = can teach |
+| user_skill_description | text        | nullable              | Free-text context about proficiency                 |
+| created_at             | timestamptz | NOT NULL              |                                                     |
+| updated_at             | timestamptz | NOT NULL              |                                                     |
+
 
 - UNIQUE(user_id, skill_id)
 
 #### `users_courses`
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| user_id | uuid | NOT NULL, FK users | |
-| class_id | uuid | NOT NULL, FK courses | |
-| start_date | date | nullable | |
-| end_date | date | nullable | |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column     | Type        | Constraints          | Description |
+| ---------- | ----------- | -------------------- | ----------- |
+| id         | uuid        | PK                   |             |
+| user_id    | uuid        | NOT NULL, FK users   |             |
+| class_id   | uuid        | NOT NULL, FK courses |             |
+| start_date | date        | nullable             |             |
+| end_date   | date        | nullable             |             |
+| created_at | timestamptz | NOT NULL             |             |
+| updated_at | timestamptz | NOT NULL             |             |
+
 
 #### `users_campuses`
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| user_id | uuid | NOT NULL, FK users | |
-| campus_id | uuid | NOT NULL, FK campuses | |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column     | Type        | Constraints           | Description |
+| ---------- | ----------- | --------------------- | ----------- |
+| id         | uuid        | PK                    |             |
+| user_id    | uuid        | NOT NULL, FK users    |             |
+| campus_id  | uuid        | NOT NULL, FK campuses |             |
+| created_at | timestamptz | NOT NULL              |             |
+| updated_at | timestamptz | NOT NULL              |             |
+
 
 #### `users_availabilities`
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| user_id | uuid | NOT NULL, FK users | |
-| start_timestamp | timestamptz | NOT NULL | Availability window start |
-| end_timestamp | timestamptz | NOT NULL | Availability window end |
-| recurring_days | week_day_type[] | nullable | If set, slot recurs on these days |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column          | Type            | Constraints        | Description                       |
+| --------------- | --------------- | ------------------ | --------------------------------- |
+| id              | uuid            | PK                 |                                   |
+| user_id         | uuid            | NOT NULL, FK users |                                   |
+| start_timestamp | timestamptz     | NOT NULL           | Availability window start         |
+| end_timestamp   | timestamptz     | NOT NULL           | Availability window end           |
+| recurring_days  | week_day_type[] | nullable           | If set, slot recurs on these days |
+| created_at      | timestamptz     | NOT NULL           |                                   |
+| updated_at      | timestamptz     | NOT NULL           |                                   |
+
 
 #### `friend_requests`
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| requestor_user_id | uuid | NOT NULL, FK users | Who sent the request |
-| receiver_user_id | uuid | NOT NULL, FK users | Who receives the request |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column            | Type        | Constraints        | Description              |
+| ----------------- | ----------- | ------------------ | ------------------------ |
+| id                | uuid        | PK                 |                          |
+| requestor_user_id | uuid        | NOT NULL, FK users | Who sent the request     |
+| receiver_user_id  | uuid        | NOT NULL, FK users | Who receives the request |
+| created_at        | timestamptz | NOT NULL           |                          |
+| updated_at        | timestamptz | NOT NULL           |                          |
+
 
 #### `friend_pairs`
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| requestor_user_id | uuid | NOT NULL, FK users | Original requester |
-| receiver_user_id | uuid | NOT NULL, FK users | Who accepted |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column            | Type        | Constraints        | Description        |
+| ----------------- | ----------- | ------------------ | ------------------ |
+| id                | uuid        | PK                 |                    |
+| requestor_user_id | uuid        | NOT NULL, FK users | Original requester |
+| receiver_user_id  | uuid        | NOT NULL, FK users | Who accepted       |
+| created_at        | timestamptz | NOT NULL           |                    |
+| updated_at        | timestamptz | NOT NULL           |                    |
+
+
+#### `direct_conversations`
+
+One direct-message thread per confirmed friendship.
+
+
+| Column         | Type        | Constraints                          | Description                          |
+| -------------- | ----------- | ------------------------------------ | ------------------------------------ |
+| id             | uuid        | PK                                   |                                      |
+| friend_pair_id | uuid        | NOT NULL, UNIQUE, FK friend_pairs    | The friendship this conversation belongs to |
+| created_at     | timestamptz | NOT NULL                             |                                      |
+| updated_at     | timestamptz | NOT NULL                             |                                      |
+
+
+#### `direct_messages`
+
+Messages within a friend direct-message conversation.
+
+
+| Column          | Type        | Constraints                     | Description        |
+| --------------- | ----------- | ------------------------------- | ------------------ |
+| id              | uuid        | PK                              |                    |
+| conversation_id | uuid        | NOT NULL, FK direct_conversations | Parent thread    |
+| sender_user_id  | uuid        | NOT NULL, FK users              | Who sent the message |
+| content         | text        | NOT NULL (non-empty after trim) | Message body       |
+| created_at      | timestamptz | NOT NULL                        |                    |
+| updated_at      | timestamptz | NOT NULL                        |                    |
+
+
+**Design decision**: One `direct_conversations` row per `friend_pair_id` (lazy-created on first message). Only confirmed friends can read or send messages. New messages trigger an in-app `DIRECT_MESSAGE` notification for the recipient via a `SECURITY DEFINER` database trigger.
+
+**RLS (direct messages)**:
+
+- `direct_conversations`: SELECT/INSERT when `is_user_in_friend_pair(friend_pair_id)`; admins full access.
+- `direct_messages`: SELECT when the user is in the conversation's friend pair; INSERT when sender is the current user and is in that pair; admins full access.
+- Helper: `is_user_in_friend_pair(pair_id uuid)` returns true if `auth.uid()` maps to either side of the pair.
+
+Both tables are added to the `supabase_realtime` publication for live UI updates.
+
 
 #### `user_roles`
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| user_id | uuid | NOT NULL, FK users, UNIQUE | |
-| auth_id | uuid | NOT NULL | |
-| role | user_roles_type | NOT NULL, default 'USER' | |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column     | Type            | Constraints                | Description |
+| ---------- | --------------- | -------------------------- | ----------- |
+| id         | uuid            | PK                         |             |
+| user_id    | uuid            | NOT NULL, FK users, UNIQUE |             |
+| auth_id    | uuid            | NOT NULL                   |             |
+| role       | user_roles_type | NOT NULL, default 'USER'   |             |
+| created_at | timestamptz     | NOT NULL                   |             |
+| updated_at | timestamptz     | NOT NULL                   |             |
+
 
 ### Enums (Profile Domain)
 
-| Enum | Values |
-|------|--------|
-| `user_roles_type` | USER, ADMIN |
-| `week_day_type` | MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY |
+
+| Enum              | Values                                                         |
+| ----------------- | -------------------------------------------------------------- |
+| `user_roles_type` | USER, ADMIN                                                    |
+| `week_day_type`   | MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY |
+
 
 ### Helper Functions
 
-| Function | Purpose |
-|----------|---------|
+
+| Function                     | Purpose                                                                                                |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------ |
 | `enforce_table_timestamps()` | Trigger: auto-sets `created_at` on INSERT, `updated_at` on UPDATE. Prevents `created_at` modification. |
-| `handle_new_user()` | Trigger on `auth.users` INSERT: creates `public.users` row + default `USER` role in `user_roles`. |
-| `handle_user_update()` | Trigger on `auth.users` UPDATE: syncs email and phone to `public.users`. |
-| `is_user_admin()` | Returns true if current authenticated user has `ADMIN` role. |
+| `handle_new_user()`          | Trigger on `auth.users` INSERT: creates `public.users` row + default `USER` role in `user_roles`.      |
+| `handle_user_update()`       | Trigger on `auth.users` UPDATE: syncs email and phone to `public.users`.                               |
+| `is_user_admin()`            | Returns true if current authenticated user has `ADMIN` role.                                           |
+
 
 ### RLS (Profile Domain)
 
@@ -256,49 +329,57 @@ User-proposable: authenticated users may insert a row with `created_by_user_id =
 
 Records a match attempt from one user to another for a specific skill.
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| requestor_user_id | uuid | NOT NULL, FK users | Who initiates the match |
-| target_user_id | uuid | NOT NULL, FK users | Who is being matched with |
-| skill_id | uuid | NOT NULL, FK skills | The skill in question |
-| status | match_request_status_type | NOT NULL, default 'PENDING' | Current state |
-| message | text | nullable | Optional intro message |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column            | Type                      | Constraints                 | Description               |
+| ----------------- | ------------------------- | --------------------------- | ------------------------- |
+| id                | uuid                      | PK                          |                           |
+| requestor_user_id | uuid                      | NOT NULL, FK users          | Who initiates the match   |
+| target_user_id    | uuid                      | NOT NULL, FK users          | Who is being matched with |
+| skill_id          | uuid                      | NOT NULL, FK skills         | The skill in question     |
+| status            | match_request_status_type | NOT NULL, default 'PENDING' | Current state             |
+| message           | text                      | nullable                    | Optional intro message    |
+| created_at        | timestamptz               | NOT NULL                    |                           |
+| updated_at        | timestamptz               | NOT NULL                    |                           |
+
 
 #### `match_history`
 
 Records completed/resolved match interactions for analytics and feedback.
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| match_request_id | uuid | NOT NULL, FK match_requests | Link to original request |
-| requestor_user_id | uuid | NOT NULL, FK users | |
-| target_user_id | uuid | NOT NULL, FK users | |
-| skill_id | uuid | NOT NULL, FK skills | |
-| outcome | match_outcome_type | NOT NULL | How the match resolved |
-| rating | smallint | nullable, CHECK (1-5) | Post-match rating |
-| feedback | text | nullable | Post-match feedback |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column            | Type               | Constraints                 | Description              |
+| ----------------- | ------------------ | --------------------------- | ------------------------ |
+| id                | uuid               | PK                          |                          |
+| match_request_id  | uuid               | NOT NULL, FK match_requests | Link to original request |
+| requestor_user_id | uuid               | NOT NULL, FK users          |                          |
+| target_user_id    | uuid               | NOT NULL, FK users          |                          |
+| skill_id          | uuid               | NOT NULL, FK skills         |                          |
+| outcome           | match_outcome_type | NOT NULL                    | How the match resolved   |
+| rating            | smallint           | nullable, CHECK (1-5)       | Post-match rating        |
+| feedback          | text               | nullable                    | Post-match feedback      |
+| created_at        | timestamptz        | NOT NULL                    |                          |
+| updated_at        | timestamptz        | NOT NULL                    |                          |
+
 
 ### Enums
 
-| Enum | Values |
-|------|--------|
+
+| Enum                        | Values                                 |
+| --------------------------- | -------------------------------------- |
 | `match_request_status_type` | PENDING, ACCEPTED, REJECTED, CANCELLED |
-| `match_outcome_type` | COMPLETED, EXPIRED, WITHDRAWN |
+| `match_outcome_type`        | COMPLETED, EXPIRED, WITHDRAWN          |
+
 
 ### Edge Function: `match-students`
 
-| Property | Detail |
-|----------|--------|
-| **Trigger** | Called by frontend matching page |
-| **Input** | `user_id`, optional filters: `skill_id`, `campus_id`, `availability_overlap`, `level_range` |
-| **Logic** | Queries `users_skills` for complementary levels (high-level users paired with low-level users on the same skill). Filters by shared campus, overlapping availability windows. Ranks by match quality score. |
-| **Output** | Array of suggested user profiles with: `user_id`, `skill_id`, `user_skill_level`, `match_score`, `shared_campus`, `availability_overlap_hours` |
+
+| Property    | Detail                                                                                                                                                                                                      |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Trigger** | Called by frontend matching page                                                                                                                                                                            |
+| **Input**   | `user_id`, optional filters: `skill_id`, `campus_id`, `availability_overlap`, `level_range`                                                                                                                 |
+| **Logic**   | Queries `users_skills` for complementary levels (high-level users paired with low-level users on the same skill). Filters by shared campus, overlapping availability windows. Ranks by match quality score. |
+| **Output**  | Array of suggested user profiles with: `user_id`, `skill_id`, `user_skill_level`, `match_score`, `shared_campus`, `availability_overlap_hours`                                                              |
+
 
 ### RLS
 
@@ -323,15 +404,17 @@ Records completed/resolved match interactions for analytics and feedback.
 
 Extensible lookup table for session categories (like skills/campuses).
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| name_fr | text | NOT NULL | French label |
-| name_en | text | nullable | English label |
-| description_fr | text | nullable | French description |
-| description_en | text | nullable | English description |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column         | Type        | Constraints | Description         |
+| -------------- | ----------- | ----------- | ------------------- |
+| id             | uuid        | PK          |                     |
+| name_fr        | text        | NOT NULL    | French label        |
+| name_en        | text        | nullable    | English label       |
+| description_fr | text        | nullable    | French description  |
+| description_en | text        | nullable    | English description |
+| created_at     | timestamptz | NOT NULL    |                     |
+| updated_at     | timestamptz | NOT NULL    |                     |
+
 
 **Seed data:** "Atelier" / "Workshop", "Cours rapide" / "Quick Course", "Club thématique" / "Thematic Club"
 
@@ -339,45 +422,51 @@ Extensible lookup table for session categories (like skills/campuses).
 
 A scheduled learning session.
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| session_type_id | uuid | NOT NULL, FK session_types | Category of session |
-| skill_id | uuid | NOT NULL, FK skills | Skill being taught/practiced |
-| organizer_user_id | uuid | NOT NULL, FK users | Who created the session |
-| title | text | NOT NULL | Session title |
-| description | text | nullable | Detailed description |
-| status | session_status_type | NOT NULL, default 'PLANNED' | Lifecycle state |
-| max_participants | smallint | nullable | null = unlimited |
-| location | text | nullable | Physical or virtual location |
-| start_timestamp | timestamptz | NOT NULL | Scheduled start |
-| end_timestamp | timestamptz | NOT NULL | Scheduled end |
-| campus_id | uuid | nullable, FK campuses | Where (if campus-specific) |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column            | Type                | Constraints                 | Description                  |
+| ----------------- | ------------------- | --------------------------- | ---------------------------- |
+| id                | uuid                | PK                          |                              |
+| session_type_id   | uuid                | NOT NULL, FK session_types  | Category of session          |
+| skill_id          | uuid                | NOT NULL, FK skills         | Skill being taught/practiced |
+| organizer_user_id | uuid                | NOT NULL, FK users          | Who created the session      |
+| title             | text                | NOT NULL                    | Session title                |
+| description       | text                | nullable                    | Detailed description         |
+| status            | session_status_type | NOT NULL, default 'PLANNED' | Lifecycle state              |
+| max_participants  | smallint            | nullable                    | null = unlimited             |
+| location          | text                | nullable                    | Physical or virtual location |
+| start_timestamp   | timestamptz         | NOT NULL                    | Scheduled start              |
+| end_timestamp     | timestamptz         | NOT NULL                    | Scheduled end                |
+| campus_id         | uuid                | nullable, FK campuses       | Where (if campus-specific)   |
+| created_at        | timestamptz         | NOT NULL                    |                              |
+| updated_at        | timestamptz         | NOT NULL                    |                              |
+
 
 #### `session_participants`
 
 Join table tracking who attends each session and in what role.
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| session_id | uuid | NOT NULL, FK sessions | |
-| user_id | uuid | NOT NULL, FK users | |
-| role | session_participant_role_type | NOT NULL | Participant's role |
-| joined_at | timestamptz | NOT NULL, default now() | When they joined |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column     | Type                          | Constraints             | Description        |
+| ---------- | ----------------------------- | ----------------------- | ------------------ |
+| id         | uuid                          | PK                      |                    |
+| session_id | uuid                          | NOT NULL, FK sessions   |                    |
+| user_id    | uuid                          | NOT NULL, FK users      |                    |
+| role       | session_participant_role_type | NOT NULL                | Participant's role |
+| joined_at  | timestamptz                   | NOT NULL, default now() | When they joined   |
+| created_at | timestamptz                   | NOT NULL                |                    |
+| updated_at | timestamptz                   | NOT NULL                |                    |
+
 
 - UNIQUE(session_id, user_id)
 
 ### Enums
 
-| Enum | Values |
-|------|--------|
-| `session_status_type` | PLANNED, IN_PROGRESS, COMPLETED, CANCELLED |
-| `session_participant_role_type` | ORGANIZER, TEACHER, LEARNER |
+
+| Enum                            | Values                                     |
+| ------------------------------- | ------------------------------------------ |
+| `session_status_type`           | PLANNED, IN_PROGRESS, COMPLETED, CANCELLED |
+| `session_participant_role_type` | ORGANIZER, TEACHER, LEARNER                |
+
 
 ### RLS
 
@@ -403,31 +492,35 @@ Join table tracking who attends each session and in what role.
 
 Lookup table of all available badges.
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| name_fr | text | NOT NULL | French badge name |
-| name_en | text | nullable | English badge name |
-| description_fr | text | nullable | French description |
-| description_en | text | nullable | English description |
-| icon_url | text | nullable | Badge icon asset URL |
-| criteria_description | text | nullable | Human-readable unlock condition |
-| points_reward | integer | NOT NULL, default 0 | Points granted when badge is earned |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column               | Type        | Constraints         | Description                         |
+| -------------------- | ----------- | ------------------- | ----------------------------------- |
+| id                   | uuid        | PK                  |                                     |
+| name_fr              | text        | NOT NULL            | French badge name                   |
+| name_en              | text        | nullable            | English badge name                  |
+| description_fr       | text        | nullable            | French description                  |
+| description_en       | text        | nullable            | English description                 |
+| icon_url             | text        | nullable            | Badge icon asset URL                |
+| criteria_description | text        | nullable            | Human-readable unlock condition     |
+| points_reward        | integer     | NOT NULL, default 0 | Points granted when badge is earned |
+| created_at           | timestamptz | NOT NULL            |                                     |
+| updated_at           | timestamptz | NOT NULL            |                                     |
+
 
 #### `user_badges`
 
 Tracks which badges a user has earned.
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| user_id | uuid | NOT NULL, FK users | |
-| badge_id | uuid | NOT NULL, FK badges | |
+
+| Column     | Type        | Constraints             | Description               |
+| ---------- | ----------- | ----------------------- | ------------------------- |
+| id         | uuid        | PK                      |                           |
+| user_id    | uuid        | NOT NULL, FK users      |                           |
+| badge_id   | uuid        | NOT NULL, FK badges     |                           |
 | awarded_at | timestamptz | NOT NULL, default now() | When the badge was earned |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+| created_at | timestamptz | NOT NULL                |                           |
+| updated_at | timestamptz | NOT NULL                |                           |
+
 
 - UNIQUE(user_id, badge_id) — a badge can only be earned once per user.
 
@@ -435,89 +528,103 @@ Tracks which badges a user has earned.
 
 Lookup table defining how many points each type of action awards.
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| action_key | text | NOT NULL, UNIQUE | Machine identifier (e.g. `session_completed_as_teacher`) |
-| name_fr | text | NOT NULL | French label |
-| name_en | text | nullable | English label |
-| points_value | integer | NOT NULL | Points awarded per occurrence |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column       | Type        | Constraints      | Description                                              |
+| ------------ | ----------- | ---------------- | -------------------------------------------------------- |
+| id           | uuid        | PK               |                                                          |
+| action_key   | text        | NOT NULL, UNIQUE | Machine identifier (e.g. `session_completed_as_teacher`) |
+| name_fr      | text        | NOT NULL         | French label                                             |
+| name_en      | text        | nullable         | English label                                            |
+| points_value | integer     | NOT NULL         | Points awarded per occurrence                            |
+| created_at   | timestamptz | NOT NULL         |                                                          |
+| updated_at   | timestamptz | NOT NULL         |                                                          |
+
 
 #### `user_points_ledger`
 
 Append-only log of all points earned. Total user points = SUM(points_earned) WHERE user_id = X.
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| user_id | uuid | NOT NULL, FK users | |
-| point_action_id | uuid | NOT NULL, FK point_actions | Which action triggered this |
-| points_earned | integer | NOT NULL | Points awarded (always positive) |
-| reference_id | uuid | nullable | Polymorphic link to the triggering entity |
-| created_at | timestamptz | NOT NULL | |
+
+| Column          | Type        | Constraints                | Description                               |
+| --------------- | ----------- | -------------------------- | ----------------------------------------- |
+| id              | uuid        | PK                         |                                           |
+| user_id         | uuid        | NOT NULL, FK users         |                                           |
+| point_action_id | uuid        | NOT NULL, FK point_actions | Which action triggered this               |
+| points_earned   | integer     | NOT NULL                   | Points awarded (always positive)          |
+| reference_id    | uuid        | nullable                   | Polymorphic link to the triggering entity |
+| created_at      | timestamptz | NOT NULL                   |                                           |
+
 
 #### `challenges`
 
 System-defined challenges (quests) that users can complete for rewards.
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| name_fr | text | NOT NULL | French name |
-| name_en | text | nullable | English name |
-| description_fr | text | nullable | French description |
-| description_en | text | nullable | English description |
-| goal_type | text | NOT NULL | Machine key for what to count (e.g. `complete_sessions`) |
-| goal_count | integer | NOT NULL | How many to reach goal |
-| points_reward | integer | NOT NULL, default 0 | Points awarded on completion |
-| badge_reward_id | uuid | nullable, FK badges | Badge awarded on completion |
-| start_date | date | nullable | Challenge availability start (null = always) |
-| end_date | date | nullable | Challenge availability end (null = no expiry) |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column          | Type        | Constraints         | Description                                              |
+| --------------- | ----------- | ------------------- | -------------------------------------------------------- |
+| id              | uuid        | PK                  |                                                          |
+| name_fr         | text        | NOT NULL            | French name                                              |
+| name_en         | text        | nullable            | English name                                             |
+| description_fr  | text        | nullable            | French description                                       |
+| description_en  | text        | nullable            | English description                                      |
+| goal_type       | text        | NOT NULL            | Machine key for what to count (e.g. `complete_sessions`) |
+| goal_count      | integer     | NOT NULL            | How many to reach goal                                   |
+| points_reward   | integer     | NOT NULL, default 0 | Points awarded on completion                             |
+| badge_reward_id | uuid        | nullable, FK badges | Badge awarded on completion                              |
+| start_date      | date        | nullable            | Challenge availability start (null = always)             |
+| end_date        | date        | nullable            | Challenge availability end (null = no expiry)            |
+| created_at      | timestamptz | NOT NULL            |                                                          |
+| updated_at      | timestamptz | NOT NULL            |                                                          |
+
 
 #### `user_challenges`
 
 Tracks individual user progress toward each challenge.
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| user_id | uuid | NOT NULL, FK users | |
-| challenge_id | uuid | NOT NULL, FK challenges | |
-| current_progress | integer | NOT NULL, default 0 | Current count toward goal |
-| status | challenge_status_type | NOT NULL, default 'IN_PROGRESS' | |
-| completed_at | timestamptz | nullable | When the challenge was completed |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column           | Type                  | Constraints                     | Description                      |
+| ---------------- | --------------------- | ------------------------------- | -------------------------------- |
+| id               | uuid                  | PK                              |                                  |
+| user_id          | uuid                  | NOT NULL, FK users              |                                  |
+| challenge_id     | uuid                  | NOT NULL, FK challenges         |                                  |
+| current_progress | integer               | NOT NULL, default 0             | Current count toward goal        |
+| status           | challenge_status_type | NOT NULL, default 'IN_PROGRESS' |                                  |
+| completed_at     | timestamptz           | nullable                        | When the challenge was completed |
+| created_at       | timestamptz           | NOT NULL                        |                                  |
+| updated_at       | timestamptz           | NOT NULL                        |                                  |
+
 
 - UNIQUE(user_id, challenge_id)
 
 ### Enums
 
-| Enum | Values |
-|------|--------|
+
+| Enum                    | Values                                  |
+| ----------------------- | --------------------------------------- |
 | `challenge_status_type` | IN_PROGRESS, COMPLETED, FAILED, EXPIRED |
+
 
 ### Edge Function: `award-points`
 
-| Property | Detail |
-|----------|--------|
-| **Trigger** | Called after relevant actions (session completed, challenge completed, etc.) |
-| **Input** | `user_id`, `action_key`, `reference_id` (optional) |
-| **Logic** | Looks up `point_actions` by `action_key`, inserts into `user_points_ledger`. Then calls `check-badge-criteria` and increments relevant `user_challenges` progress. |
-| **Output** | `{ points_earned, total_points, badges_awarded[], challenges_completed[] }` |
+
+| Property    | Detail                                                                                                                                                             |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Trigger** | Called after relevant actions (session completed, challenge completed, etc.)                                                                                       |
+| **Input**   | `user_id`, `action_key`, `reference_id` (optional)                                                                                                                 |
+| **Logic**   | Looks up `point_actions` by `action_key`, inserts into `user_points_ledger`. Then calls `check-badge-criteria` and increments relevant `user_challenges` progress. |
+| **Output**  | `{ points_earned, total_points, badges_awarded[], challenges_completed[] }`                                                                                        |
+
 
 ### Edge Function: `check-badge-criteria`
 
-| Property | Detail |
-|----------|--------|
-| **Trigger** | Called by `award-points` after each point award |
-| **Input** | `user_id` |
-| **Logic** | Evaluates all badge criteria rules against user's activity (total sessions, points milestones, etc.). Awards any newly-met badges by inserting into `user_badges`. |
-| **Output** | `{ newly_awarded_badges[] }` |
+
+| Property    | Detail                                                                                                                                                             |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Trigger** | Called by `award-points` after each point award                                                                                                                    |
+| **Input**   | `user_id`                                                                                                                                                          |
+| **Logic**   | Evaluates all badge criteria rules against user's activity (total sessions, points milestones, etc.). Awards any newly-met badges by inserting into `user_badges`. |
+| **Output**  | `{ newly_awarded_badges[] }`                                                                                                                                       |
+
 
 ### RLS
 
@@ -543,58 +650,68 @@ Tracks individual user progress toward each challenge.
 
 Social feed posts.
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| author_user_id | uuid | NOT NULL, FK users | Post author |
-| post_type | post_type | NOT NULL | Category of post |
-| visibility | post_visibility_type | NOT NULL, default 'PUBLIC' | Who can see it |
-| title | text | nullable | Optional post title |
-| content | text | NOT NULL | Post body |
-| media_url | text | nullable | Attached media (image/video URL) |
-| referenced_user_ids | uuid[] | nullable | Tagged users |
-| referenced_session_id | uuid | nullable, FK sessions | Linked session (if relevant) |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column                | Type                 | Constraints                | Description                      |
+| --------------------- | -------------------- | -------------------------- | -------------------------------- |
+| id                    | uuid                 | PK                         |                                  |
+| author_user_id        | uuid                 | NOT NULL, FK users         | Post author                      |
+| post_type             | post_type            | NOT NULL                   | Category of post                 |
+| visibility            | post_visibility_type | NOT NULL, default 'PUBLIC' | Who can see it                   |
+| title                 | text                 | nullable                   | Optional post title              |
+| content               | text                 | NOT NULL                   | Post body                        |
+| media_url             | text                 | nullable                   | Attached media (image/video URL) |
+| referenced_user_ids   | uuid[]               | nullable                   | Tagged users                     |
+| referenced_session_id | uuid                 | nullable, FK sessions      | Linked session (if relevant)     |
+| created_at            | timestamptz          | NOT NULL                   |                                  |
+| updated_at            | timestamptz          | NOT NULL                   |                                  |
+
 
 #### `post_likes`
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| post_id | uuid | NOT NULL, FK posts ON DELETE CASCADE | |
-| user_id | uuid | NOT NULL, FK users | Who liked |
-| created_at | timestamptz | NOT NULL | |
+
+| Column     | Type        | Constraints                          | Description |
+| ---------- | ----------- | ------------------------------------ | ----------- |
+| id         | uuid        | PK                                   |             |
+| post_id    | uuid        | NOT NULL, FK posts ON DELETE CASCADE |             |
+| user_id    | uuid        | NOT NULL, FK users                   | Who liked   |
+| created_at | timestamptz | NOT NULL                             |             |
+
 
 - UNIQUE(post_id, user_id) — one like per user per post.
 
 #### `post_comments`
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| post_id | uuid | NOT NULL, FK posts ON DELETE CASCADE | |
-| author_user_id | uuid | NOT NULL, FK users | Comment author |
-| content | text | NOT NULL | Comment body |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column         | Type        | Constraints                          | Description    |
+| -------------- | ----------- | ------------------------------------ | -------------- |
+| id             | uuid        | PK                                   |                |
+| post_id        | uuid        | NOT NULL, FK posts ON DELETE CASCADE |                |
+| author_user_id | uuid        | NOT NULL, FK users                   | Comment author |
+| content        | text        | NOT NULL                             | Comment body   |
+| created_at     | timestamptz | NOT NULL                             |                |
+| updated_at     | timestamptz | NOT NULL                             |                |
+
 
 #### `post_shares`
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| original_post_id | uuid | NOT NULL, FK posts ON DELETE CASCADE | The post being shared |
-| sharing_user_id | uuid | NOT NULL, FK users | Who shared it |
-| comment | text | nullable | Optional share commentary |
-| created_at | timestamptz | NOT NULL | |
+
+| Column           | Type        | Constraints                          | Description               |
+| ---------------- | ----------- | ------------------------------------ | ------------------------- |
+| id               | uuid        | PK                                   |                           |
+| original_post_id | uuid        | NOT NULL, FK posts ON DELETE CASCADE | The post being shared     |
+| sharing_user_id  | uuid        | NOT NULL, FK users                   | Who shared it             |
+| comment          | text        | nullable                             | Optional share commentary |
+| created_at       | timestamptz | NOT NULL                             |                           |
+
 
 ### Enums
 
-| Enum | Values |
-|------|--------|
-| `post_type` | ACHIEVEMENT, RECOMMENDATION, FEEDBACK |
-| `post_visibility_type` | PUBLIC, FRIENDS_ONLY |
+
+| Enum                   | Values                                |
+| ---------------------- | ------------------------------------- |
+| `post_type`            | ACHIEVEMENT, RECOMMENDATION, FEEDBACK |
+| `post_visibility_type` | PUBLIC, FRIENDS_ONLY                  |
+
 
 ### RLS
 
@@ -613,29 +730,33 @@ Social feed posts.
 
 In-app notification system. Notifications are created by edge functions or triggers and consumed by the frontend.
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| recipient_user_id | uuid | NOT NULL, FK users | Who receives the notification |
-| sender_user_id | uuid | nullable, FK users | Who triggered it (null for system) |
-| notification_type | notification_type | NOT NULL | Category |
-| title_key | text | NOT NULL | i18n translation key for title |
-| body_key | text | NOT NULL | i18n translation key for body |
-| reference_id | uuid | nullable | Polymorphic link to relevant entity |
-| reference_type | text | nullable | Entity type (e.g. 'match_request', 'session', 'badge', 'post') |
-| is_read | boolean | NOT NULL, default false | Read state |
-| created_at | timestamptz | NOT NULL | |
+
+| Column            | Type              | Constraints             | Description                                                    |
+| ----------------- | ----------------- | ----------------------- | -------------------------------------------------------------- |
+| id                | uuid              | PK                      |                                                                |
+| recipient_user_id | uuid              | NOT NULL, FK users      | Who receives the notification                                  |
+| sender_user_id    | uuid              | nullable, FK users      | Who triggered it (null for system)                             |
+| notification_type | notification_type | NOT NULL                | Category                                                       |
+| title_key         | text              | NOT NULL                | i18n translation key for title                                 |
+| body_key          | text              | NOT NULL                | i18n translation key for body                                  |
+| reference_id      | uuid              | nullable                | Polymorphic link to relevant entity                            |
+| reference_type    | text              | nullable                | Entity type (e.g. 'match_request', 'session', 'badge', 'post') |
+| is_read           | boolean           | NOT NULL, default false | Read state                                                     |
+| created_at        | timestamptz       | NOT NULL                |                                                                |
+
 
 ### Enums
 
-| Enum | Values |
-|------|--------|
-| `notification_type` | MATCH_REQUEST, MATCH_ACCEPTED, SESSION_INVITE, SESSION_REMINDER, BADGE_EARNED, CHALLENGE_COMPLETED, FRIEND_REQUEST, POST_LIKE, POST_COMMENT, POST_SHARE, ADMIN_BROADCAST, ACCOUNT_SUSPENDED, CONTENT_REMOVED |
+
+| Enum                | Values                                                                                                                                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `notification_type` | MATCH_REQUEST, MATCH_ACCEPTED, SESSION_INVITE, SESSION_REMINDER, BADGE_EARNED, CHALLENGE_COMPLETED, FRIEND_REQUEST, POST_LIKE, POST_COMMENT, POST_SHARE, ADMIN_BROADCAST, ACCOUNT_SUSPENDED, CONTENT_REMOVED, DIRECT_MESSAGE |
+
 
 ### RLS
 
 - Users can only SELECT/UPDATE (mark as read) their own notifications.
-- Only edge functions (via service role) or admin can INSERT notifications.
+- Only edge functions (via service role), database triggers, or admin can INSERT notifications. `DIRECT_MESSAGE` notifications are created by the `notify_direct_message_recipient()` trigger on `direct_messages` INSERT. The `body_key` stores the sender short label (`first_name` + `.` + last-name initial, e.g. `Pierre.M`); the UI resolves `Notifications.directMessage.body` with `{sender}`.
 - Admins have full access.
 
 ---
@@ -693,24 +814,28 @@ In-app notification system. Notifications are created by edge functions or trigg
 
 User-submitted reports on posts or comments for moderation review.
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PK | |
-| reporter_user_id | uuid | NOT NULL, FK users | Who submitted the report |
-| reported_entity_id | uuid | NOT NULL | ID of the reported post or comment |
-| reported_entity_type | text | NOT NULL | 'post' or 'comment' |
-| reason | text | NOT NULL | Why it was reported |
-| status | report_status_type | NOT NULL, default 'PENDING' | Moderation state |
-| resolved_by_user_id | uuid | nullable, FK users | Admin who resolved it |
-| resolution_note | text | nullable | Admin's resolution note |
-| created_at | timestamptz | NOT NULL | |
-| updated_at | timestamptz | NOT NULL | |
+
+| Column               | Type               | Constraints                 | Description                        |
+| -------------------- | ------------------ | --------------------------- | ---------------------------------- |
+| id                   | uuid               | PK                          |                                    |
+| reporter_user_id     | uuid               | NOT NULL, FK users          | Who submitted the report           |
+| reported_entity_id   | uuid               | NOT NULL                    | ID of the reported post or comment |
+| reported_entity_type | text               | NOT NULL                    | 'post' or 'comment'                |
+| reason               | text               | NOT NULL                    | Why it was reported                |
+| status               | report_status_type | NOT NULL, default 'PENDING' | Moderation state                   |
+| resolved_by_user_id  | uuid               | nullable, FK users          | Admin who resolved it              |
+| resolution_note      | text               | nullable                    | Admin's resolution note            |
+| created_at           | timestamptz        | NOT NULL                    |                                    |
+| updated_at           | timestamptz        | NOT NULL                    |                                    |
+
 
 ### Enums
 
-| Enum | Values |
-|------|--------|
+
+| Enum                 | Values                       |
+| -------------------- | ---------------------------- |
 | `report_status_type` | PENDING, RESOLVED, DISMISSED |
+
 
 ### RLS
 
@@ -724,103 +849,123 @@ User-submitted reports on posts or comments for moderation review.
 
 ### Public (Unauthenticated) Pages
 
-| Route | Purpose | Status |
-|-------|---------|--------|
-| `/login` | Sign in | DONE |
-| `/register` | Create account | DONE |
-| `/verify-email` | Post-registration email confirmation | DONE |
-| `/privacy-policy` | Privacy policy (static) | DONE |
-| `/terms-of-service` | Terms of service (static) | DONE |
-| `/legal-notice` | Legal notice (static) | DONE |
-| `/accessibility` | Accessibility statement (static) | DONE |
-| `/contact` | Contact form | DONE |
-| `/about` | Project description | DONE |
-| `/faq` | Frequently asked questions | DONE |
+
+| Route               | Purpose                              | Status |
+| ------------------- | ------------------------------------ | ------ |
+| `/login`            | Sign in                              | DONE   |
+| `/register`         | Create account                       | DONE   |
+| `/verify-email`     | Post-registration email confirmation | DONE   |
+| `/privacy-policy`   | Privacy policy (static)              | DONE   |
+| `/terms-of-service` | Terms of service (static)            | DONE   |
+| `/legal-notice`     | Legal notice (static)                | DONE   |
+| `/accessibility`    | Accessibility statement (static)     | DONE   |
+| `/contact`          | Contact form                         | DONE   |
+| `/about`            | Project description                  | DONE   |
+| `/faq`              | Frequently asked questions           | DONE   |
+
 
 ### Authenticated Pages
 
-| Route | Purpose | Status |
-|-------|---------|--------|
-| `/` | Public marketing landing page (hero, features, login/register CTAs) | DONE |
-| `/dashboard` | Home dashboard (activity feed, quick stats, upcoming sessions). Default page for logged-in users. | DONE |
-| `/profile/[id]` | User profile (skills, courses, campuses, availabilities, bio; own profile: add/remove) | DONE |
-| `/profile/edit` | Edit own profile (name, phone, academic level, bio) | DONE |
-| `/matching` | Skill matching hub (search + algorithm suggestions) | DONE |
-| `/sessions` | Browse/manage sessions | DONE |
-| `/sessions/[id]` | Session detail | DONE |
-| `/sessions/create` | Create new session | DONE |
-| `/feed` | Social feed (global + friends filter) | DONE |
-| `/challenges` | Active challenges + progress | DONE |
-| `/leaderboard` | Points ranking | DONE |
-| `/notifications` | Notification center | DONE |
-| `/friends` | Friend list, requests, and user search to send requests | DONE |
+
+| Route              | Purpose                                                                                           | Status |
+| ------------------ | ------------------------------------------------------------------------------------------------- | ------ |
+| `/`                | Public marketing landing page (hero, features, login/register CTAs)                               | DONE   |
+| `/dashboard`       | Home dashboard (activity feed, quick stats, upcoming sessions). Default page for logged-in users. | DONE   |
+| `/profile/[id]`    | User profile (skills, courses, campuses, availabilities, bio; own profile: add/remove)            | DONE   |
+| `/profile/edit`    | Edit own profile (name, phone, academic level, bio)                                               | DONE   |
+| `/account`         | Account settings; change password (re-auth with current password)                               | DONE   |
+| `/matching`        | Skill matching hub (search + algorithm suggestions)                                               | DONE   |
+| `/sessions`        | Browse/manage sessions                                                                            | DONE   |
+| `/sessions/[id]`   | Session detail                                                                                    | DONE   |
+| `/sessions/create` | Create new session                                                                                | DONE   |
+| `/feed`            | Social feed (global + friends filter)                                                             | DONE   |
+| `/challenges`      | Active challenges + progress                                                                      | DONE   |
+| `/leaderboard`     | Points ranking                                                                                    | DONE   |
+| `/notifications`   | Notification center                                                                               | DONE   |
+| `/friends`         | Friend list, requests, user search; **Message** opens a Discord-style DM sheet per friend       | DONE   |
+
+### User account menu (headers)
+
+When a session exists, both [`src/components/navbar.tsx`](../src/components/navbar.tsx) (main app shell) and [`src/components/public-header.tsx`](../src/components/public-header.tsx) (public marketing shell) render [`src/components/user-account-menu.tsx`](../src/components/user-account-menu.tsx): a single user display control that opens a dropdown with **Profile** (`/profile/[id]`), **Account** (`/account`), and **Sign out**. There is no separate logout button in either header. Sign out uses the `logout` server action; the main navbar redirects to `/login`, while the public header keeps the user on the current public page (`redirectTo: null` + `router.refresh()`).
 
 ### Admin Pages (ADMIN Role Required)
 
-| Route | Purpose | Status |
-|-------|---------|--------|
-| `/admin` | Admin dashboard overview | DONE |
-| `/admin/users` | User management (list, search, filter) | DONE |
-| `/admin/users/[id]` | User detail + actions (edit role, suspend, delete) | DONE |
-| `/admin/moderation` | Content reports queue | DONE |
-| `/admin/lookups` | Lookup tables management | DONE |
-| `/admin/sessions` | Session oversight | DONE |
-| `/admin/gamification` | Badges, challenges, point actions management | DONE |
-| `/admin/notifications` | Broadcast notification tool | DONE |
+
+| Route                  | Purpose                                            | Status |
+| ---------------------- | -------------------------------------------------- | ------ |
+| `/admin`               | Admin dashboard overview                           | DONE   |
+| `/admin/users`         | User management (list, search, filter)             | DONE   |
+| `/admin/users/[id]`    | User detail + actions (edit role, suspend, delete) | DONE   |
+| `/admin/moderation`    | Content reports queue                              | DONE   |
+| `/admin/lookups`       | Lookup tables management                           | DONE   |
+| `/admin/sessions`      | Session oversight                                  | DONE   |
+| `/admin/gamification`  | Badges, challenges, point actions management       | DONE   |
+| `/admin/notifications` | Broadcast notification tool                        | DONE   |
+
 
 ---
 
 ## 11. Implementation Status Summary
 
-| Feature Area | Backend (DB) | Backend (Edge Functions) | Frontend |
-|--------------|:------------:|:------------------------:|:--------:|
-| Student Profile | DONE | N/A | DONE |
-| Matching System | DONE | DONE (`match-students`) | DONE |
-| Session Management | DONE | N/A | DONE |
-| Gamification | DONE | DONE (`award-points`, `check-badge-criteria`) | DONE |
-| Social Feed | DONE | N/A | DONE |
-| Notifications | DONE | N/A | DONE |
-| Admin Console | DONE | N/A | DONE |
-| Auth Flow | DONE | N/A | DONE |
+
+| Feature Area       | Backend (DB) | Backend (Edge Functions)                      | Frontend |
+| ------------------ | ------------ | --------------------------------------------- | -------- |
+| Student Profile    | DONE         | N/A                                           | DONE     |
+| Matching System    | DONE         | DONE (`match-students`)                       | DONE     |
+| Session Management | DONE         | N/A                                           | DONE     |
+| Gamification       | DONE         | DONE (`award-points`, `check-badge-criteria`) | DONE     |
+| Social Feed        | DONE         | N/A                                           | DONE     |
+| Notifications      | DONE         | N/A                                           | DONE     |
+| Direct Messages    | DONE         | N/A (trigger `notify_direct_message_recipient`) | DONE   |
+| Admin Console      | DONE         | N/A                                           | DONE     |
+| Auth Flow          | DONE         | N/A                                           | DONE     |
+
 
 ---
 
 ## 12. Key Design Rationale
 
-| Decision | Rationale |
-|----------|-----------|
-| Skill level implies direction | `user_skill_level` (1-5) determines teach/learn matching without an explicit direction field. 4-5 = can teach, 1-2 = wants to learn, 3 = peer pairing. |
-| Session types as lookup table | Allows admins to add new session types via the admin console without code changes (unlike a PostgreSQL enum). |
-| Append-only points ledger | Enables full auditability and recalculation. Total points are derived via `SUM(points_earned)` aggregate. |
-| Single posts table with visibility | Simpler than two separate feed tables. The friends-only filter is a query-time concern resolved via `friend_pairs`. |
-| Notifications use i18n keys | `title_key`/`body_key` reference translation keys rather than storing localized strings, keeping the system language-agnostic. |
-| Content reports for moderation | Rather than admin manually scanning, users flag content. Admins review a queue. |
-| `suspended_at` on users | A nullable timestamp is simpler than a status enum — null = active, set = suspended. Easily queryable. |
+
+| Decision                           | Rationale                                                                                                                                              |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Skill level implies direction      | `user_skill_level` (1-5) determines teach/learn matching without an explicit direction field. 4-5 = can teach, 1-2 = wants to learn, 3 = peer pairing. |
+| Session types as lookup table      | Allows admins to add new session types via the admin console without code changes (unlike a PostgreSQL enum).                                          |
+| Append-only points ledger          | Enables full auditability and recalculation. Total points are derived via `SUM(points_earned)` aggregate.                                              |
+| Single posts table with visibility | Simpler than two separate feed tables. The friends-only filter is a query-time concern resolved via `friend_pairs`.                                    |
+| Notifications use i18n keys        | `title_key`/`body_key` reference translation keys rather than storing localized strings, keeping the system language-agnostic.                         |
+| Content reports for moderation     | Rather than admin manually scanning, users flag content. Admins review a queue.                                                                        |
+| `suspended_at` on users            | A nullable timestamp is simpler than a status enum — null = active, set = suspended. Easily queryable.                                                 |
+
 
 ---
 
 ## 13. All Enums (Complete Reference)
 
-| Enum | Values | Domain |
-|------|--------|--------|
-| `user_roles_type` | USER, ADMIN | Profile |
-| `week_day_type` | MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY | Profile |
-| `match_request_status_type` | PENDING, ACCEPTED, REJECTED, CANCELLED | Matching |
-| `match_outcome_type` | COMPLETED, EXPIRED, WITHDRAWN | Matching |
-| `session_status_type` | PLANNED, IN_PROGRESS, COMPLETED, CANCELLED | Sessions |
-| `session_participant_role_type` | ORGANIZER, TEACHER, LEARNER | Sessions |
-| `challenge_status_type` | IN_PROGRESS, COMPLETED, FAILED, EXPIRED | Gamification |
-| `post_type` | ACHIEVEMENT, RECOMMENDATION, FEEDBACK | Social Feed |
-| `post_visibility_type` | PUBLIC, FRIENDS_ONLY | Social Feed |
-| `notification_type` | MATCH_REQUEST, MATCH_ACCEPTED, SESSION_INVITE, SESSION_REMINDER, BADGE_EARNED, CHALLENGE_COMPLETED, FRIEND_REQUEST, POST_LIKE, POST_COMMENT, POST_SHARE, ADMIN_BROADCAST, ACCOUNT_SUSPENDED, CONTENT_REMOVED | Notifications |
-| `report_status_type` | PENDING, RESOLVED, DISMISSED | Admin |
+
+| Enum                            | Values                                                                                                                                                                                                       | Domain        |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- |
+| `user_roles_type`               | USER, ADMIN                                                                                                                                                                                                  | Profile       |
+| `week_day_type`                 | MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY                                                                                                                                               | Profile       |
+| `match_request_status_type`     | PENDING, ACCEPTED, REJECTED, CANCELLED                                                                                                                                                                       | Matching      |
+| `match_outcome_type`            | COMPLETED, EXPIRED, WITHDRAWN                                                                                                                                                                                | Matching      |
+| `session_status_type`           | PLANNED, IN_PROGRESS, COMPLETED, CANCELLED                                                                                                                                                                   | Sessions      |
+| `session_participant_role_type` | ORGANIZER, TEACHER, LEARNER                                                                                                                                                                                  | Sessions      |
+| `challenge_status_type`         | IN_PROGRESS, COMPLETED, FAILED, EXPIRED                                                                                                                                                                      | Gamification  |
+| `post_type`                     | ACHIEVEMENT, RECOMMENDATION, FEEDBACK                                                                                                                                                                        | Social Feed   |
+| `post_visibility_type`          | PUBLIC, FRIENDS_ONLY                                                                                                                                                                                         | Social Feed   |
+| `notification_type`             | MATCH_REQUEST, MATCH_ACCEPTED, SESSION_INVITE, SESSION_REMINDER, BADGE_EARNED, CHALLENGE_COMPLETED, FRIEND_REQUEST, POST_LIKE, POST_COMMENT, POST_SHARE, ADMIN_BROADCAST, ACCOUNT_SUSPENDED, CONTENT_REMOVED, DIRECT_MESSAGE | Notifications |
+| `report_status_type`            | PENDING, RESOLVED, DISMISSED                                                                                                                                                                                 | Admin         |
+
 
 ---
 
 ## 14. All Edge Functions (Complete Reference)
 
-| Function | Domain | Trigger | Purpose |
-|----------|--------|---------|---------|
-| `match-students` | Matching | Frontend call | Compute and return ranked match suggestions for a user |
-| `award-points` | Gamification | After qualifying actions | Insert points ledger entry, check badges, update challenge progress |
-| `check-badge-criteria` | Gamification | Called by `award-points` | Evaluate badge rules and award newly-met badges |
+
+| Function               | Domain       | Trigger                  | Purpose                                                             |
+| ---------------------- | ------------ | ------------------------ | ------------------------------------------------------------------- |
+| `match-students`       | Matching     | Frontend call            | Compute and return ranked match suggestions for a user              |
+| `award-points`         | Gamification | After qualifying actions | Insert points ledger entry, check badges, update challenge progress |
+| `check-badge-criteria` | Gamification | Called by `award-points` | Evaluate badge rules and award newly-met badges                     |
+
+

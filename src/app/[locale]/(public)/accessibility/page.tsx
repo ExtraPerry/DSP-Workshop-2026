@@ -1,12 +1,17 @@
-import { useTranslations } from "next-intl";
+import { LegalDocument } from "@/components/legal-document";
+
+const sectionKeys = [
+  "commitment",
+  "standards",
+  "feedback",
+  "limitations",
+] as const;
 
 export default function AccessibilityPage() {
-  const t = useTranslations("Pages.AccessibilityPage");
-
   return (
-    <div className="mx-auto max-w-3xl space-y-6 p-6">
-      <h1 className="text-2xl font-semibold">{t("title")}</h1>
-      <p className="text-muted-foreground">{t("content")}</p>
-    </div>
+    <LegalDocument
+      translationNamespace="Pages.AccessibilityPage"
+      sectionKeys={sectionKeys}
+    />
   );
 }

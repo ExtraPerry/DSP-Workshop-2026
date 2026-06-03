@@ -1,7 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { resolveNotificationText } from "@/lib/notifications/resolve-notification-text";
+import {
+  resolveNotificationBody,
+  resolveNotificationText,
+} from "@/lib/notifications/resolve-notification-text";
 import { useRealtimeQuery } from "@/hooks/use-realtime-query";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import createSupabaseBrowserClient from "@/lib/supabase/create-supabase-browser-client";
@@ -15,6 +18,7 @@ const NOTIFICATIONS_QUERY_KEY = ["notifications"] as const;
 
 export default function NotificationsPage() {
   const t = useTranslations("Pages.NotificationsPage");
+  const translateNotification = useTranslations("Notifications");
   const { data: currentUser } = useCurrentUser();
   const queryClient = useQueryClient();
 
@@ -95,10 +99,16 @@ export default function NotificationsPage() {
                 )}
                 <div className="flex-1">
                   <p className="text-sm font-medium">
-                    {resolveNotificationText(notification.title_key)}
+                    {resolveNotificationText(
+                      notification.title_key,
+                      translateNotification
+                    )}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {resolveNotificationText(notification.body_key)}
+                    {resolveNotificationBody(
+                      notification,
+                      translateNotification
+                    )}
                   </p>
                 </div>
                 <span className="text-xs text-muted-foreground">

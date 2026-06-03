@@ -12,6 +12,7 @@ const PUBLIC_ROUTES = [
   "/terms-of-service",
   "/legal-notice",
   "/accessibility",
+  "/cookie-policy",
   "/contact",
   "/about",
   "/faq",

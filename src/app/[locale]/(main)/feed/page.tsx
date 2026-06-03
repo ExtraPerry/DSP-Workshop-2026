@@ -9,7 +9,7 @@ import createSupabaseBrowserClient from "@/lib/supabase/create-supabase-browser-
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@/i18n/navigation";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/user-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,6 +39,7 @@ type FeedAuthor = {
   id: string;
   first_name: string | null;
   last_name: string | null;
+  avatar_url: string | null;
 } | null;
 
 type FeedComment = {
@@ -65,13 +66,6 @@ type FeedPost = {
 function getAuthorName(author: FeedAuthor): string {
   if (!author) return "";
   return `${author.first_name ?? ""} ${author.last_name ?? ""}`.trim();
-}
-
-function getAuthorInitials(author: FeedAuthor): string {
-  if (!author) return "?";
-  return (
-    (author.first_name?.charAt(0) ?? "") + (author.last_name?.charAt(0) ?? "")
-  );
 }
 
 function PostCard({
@@ -111,11 +105,13 @@ function PostCard({
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Avatar className="size-8">
-              <AvatarFallback className="text-xs">
-                {getAuthorInitials(post.author)}
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar
+              avatarUrl={post.author?.avatar_url}
+              firstName={post.author?.first_name}
+              lastName={post.author?.last_name}
+              className="size-8"
+              fallbackClassName="text-xs"
+            />
             <div>
               <Link
                 href={`/profile/${post.author?.id}`}
@@ -176,11 +172,13 @@ function PostCard({
               <div className="space-y-3">
                 {post.post_comments.map((comment) => (
                   <div key={comment.id} className="flex items-start gap-2">
-                    <Avatar className="size-7">
-                      <AvatarFallback className="text-xs">
-                        {getAuthorInitials(comment.author)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <UserAvatar
+                      avatarUrl={comment.author?.avatar_url}
+                      firstName={comment.author?.first_name}
+                      lastName={comment.author?.last_name}
+                      className="size-7"
+                      fallbackClassName="text-xs"
+                    />
                     <div className="rounded-md bg-muted px-3 py-2">
                       <Link
                         href={`/profile/${comment.author?.id}`}
@@ -245,9 +243,9 @@ export default function FeedPage() {
         .from("posts")
         .select(
           `*,
-           author:users!posts_author_user_id_fkey(id, first_name, last_name),
+           author:users!posts_author_user_id_fkey(id, first_name, last_name, avatar_url),
            post_likes(id, user_id),
-           post_comments(id, content, created_at, author_user_id, author:users!post_comments_author_user_id_fkey(id, first_name, last_name))`
+           post_comments(id, content, created_at, author_user_id, author:users!post_comments_author_user_id_fkey(id, first_name, last_name, avatar_url))`
         )
         .order("created_at", { ascending: false })
         .limit(50);

@@ -8,7 +8,7 @@ import { getLocalizedName } from "@/lib/localized-name";
 import createSupabaseBrowserClient from "@/lib/supabase/create-supabase-browser-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@/i18n/navigation";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatarFromRecord } from "@/components/user-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,7 +32,7 @@ export default function SessionDetailPage() {
       const { data, error } = await supabase
         .from("sessions")
         .select(
-          `*, session_type:session_types(*), skill:skills(*), campus:campuses(*), organizer:users!sessions_organizer_user_id_fkey(id, first_name, last_name, email), session_participants(*, user:users(id, first_name, last_name, email))`
+          `*, session_type:session_types(*), skill:skills(*), campus:campuses(*), organizer:users!sessions_organizer_user_id_fkey(id, first_name, last_name, email, avatar_url), session_participants(*, user:users(id, first_name, last_name, email, avatar_url))`
         )
         .eq("id", params.id)
         .maybeSingle();
@@ -94,7 +94,7 @@ export default function SessionDetailPage() {
     );
   }
 
-  const participants = (session as { session_participants?: { id: string; role: string; user: { id: string; first_name: string | null; last_name: string | null } | null }[] }).session_participants ?? [];
+  const participants = (session as { session_participants?: { id: string; role: string; user: { id: string; first_name: string | null; last_name: string | null; avatar_url: string | null } | null }[] }).session_participants ?? [];
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6">
@@ -167,18 +167,17 @@ export default function SessionDetailPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {participants.map((participant: { id: string; role: string; user: { id: string; first_name: string | null; last_name: string | null } | null }) => (
+            {participants.map((participant: { id: string; role: string; user: { id: string; first_name: string | null; last_name: string | null; avatar_url: string | null } | null }) => (
               <div
                 key={participant.id}
                 className="flex items-center justify-between rounded-md border p-2"
               >
                 <div className="flex items-center gap-2">
-                  <Avatar className="size-8">
-                    <AvatarFallback className="text-xs">
-                      {(participant.user?.first_name?.charAt(0) ?? "") +
-                        (participant.user?.last_name?.charAt(0) ?? "")}
-                    </AvatarFallback>
-                  </Avatar>
+                  <UserAvatarFromRecord
+                    user={participant.user}
+                    className="size-8"
+                    fallbackClassName="text-xs"
+                  />
                   <span className="text-sm">
                     {participant.user?.first_name} {participant.user?.last_name}
                   </span>

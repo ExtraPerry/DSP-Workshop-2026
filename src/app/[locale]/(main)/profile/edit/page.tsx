@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -8,6 +9,13 @@ import { useUserProfile, userProfileQueryKey } from "@/hooks/use-user-profile";
 import { useAcademicLevels } from "@/hooks/use-lookups";
 import { getLocalizedName } from "@/lib/localized-name";
 import createSupabaseBrowserClient from "@/lib/supabase/create-supabase-browser-client";
+import {
+  AVATARS_BUCKET,
+  buildAvatarStoragePath,
+  isAllowedImageMimeType,
+  removeImageByPublicUrl,
+  uploadImageToBucket,
+} from "@/lib/supabase/upload-image";
 import { useRouter } from "@/i18n/navigation";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,13 +35,14 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { useState } from "react";
+import { UserAvatar } from "@/components/user-avatar";
 
 export default function ProfileEditPage() {
   const t = useTranslations("Pages.ProfileEditPage");
   const locale = useLocale();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: currentUser, isLoading: isUserLoading } = useCurrentUser();
   const { data: profile, isLoading: isProfileLoading } = useUserProfile(
     currentUser?.id
@@ -45,6 +54,9 @@ export default function ProfileEditPage() {
   const [phone, setPhone] = useState<string | null>(null);
   const [bio, setBio] = useState<string | null>(null);
   const [academicLevelId, setAcademicLevelId] = useState<string | null>(null);
+  const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
+  const [previewAvatarUrl, setPreviewAvatarUrl] = useState<string | null>(null);
+  const [removeAvatar, setRemoveAvatar] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const isLoading = isUserLoading || isProfileLoading;
@@ -56,11 +68,77 @@ export default function ProfileEditPage() {
   const effectiveAcademicLevelId =
     academicLevelId ?? profile?.academic_level_id ?? "";
 
+  const displayAvatarUrl = removeAvatar
+    ? previewAvatarUrl
+    : previewAvatarUrl ?? profile?.avatar_url ?? null;
+
+  useEffect(() => {
+    if (!pendingAvatarFile) {
+      return;
+    }
+    const objectUrl = URL.createObjectURL(pendingAvatarFile);
+    setPreviewAvatarUrl(objectUrl);
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [pendingAvatarFile]);
+
+  function handleAvatarFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) {
+      return;
+    }
+    if (!isAllowedImageMimeType(file.type)) {
+      toast.error(t("avatar_invalid_type"));
+      return;
+    }
+    setPendingAvatarFile(file);
+    setRemoveAvatar(false);
+  }
+
+  function handleRemoveAvatar() {
+    setPendingAvatarFile(null);
+    setPreviewAvatarUrl(null);
+    setRemoveAvatar(true);
+  }
+
   async function handleSave() {
     if (!currentUser) return;
     setIsSaving(true);
 
     const supabase = createSupabaseBrowserClient();
+    let avatarUrl: string | null = profile?.avatar_url ?? null;
+
+    if (removeAvatar) {
+      await removeImageByPublicUrl(supabase, AVATARS_BUCKET, profile?.avatar_url);
+      avatarUrl = null;
+    } else if (pendingAvatarFile && isAllowedImageMimeType(pendingAvatarFile.type)) {
+      const path = buildAvatarStoragePath(currentUser.id, pendingAvatarFile.type);
+      await removeImageByPublicUrl(supabase, AVATARS_BUCKET, profile?.avatar_url);
+
+      const uploadResult = await uploadImageToBucket({
+        supabase,
+        bucket: AVATARS_BUCKET,
+        path,
+        file: pendingAvatarFile,
+      });
+
+      if ("error" in uploadResult) {
+        setIsSaving(false);
+        if (uploadResult.error === "invalid_type") {
+          toast.error(t("avatar_invalid_type"));
+        } else if (uploadResult.error === "too_large") {
+          toast.error(t("avatar_too_large"));
+        } else {
+          toast.error(t("avatar_upload_error"));
+        }
+        return;
+      }
+
+      avatarUrl = uploadResult.publicUrl;
+    }
+
     const { error } = await supabase
       .from("users")
       .update({
@@ -69,6 +147,7 @@ export default function ProfileEditPage() {
         phone: effectivePhone || null,
         bio: effectiveBio || null,
         academic_level_id: effectiveAcademicLevelId || null,
+        avatar_url: avatarUrl,
       })
       .eq("id", currentUser.id);
 
@@ -105,6 +184,44 @@ export default function ProfileEditPage() {
           <CardTitle>{t("title")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <Field>
+            <FieldLabel>{t("avatar_label")}</FieldLabel>
+            <div className="flex flex-wrap items-center gap-4">
+              <UserAvatar
+                avatarUrl={displayAvatarUrl}
+                firstName={effectiveFirstName}
+                lastName={effectiveLastName}
+                className="size-20"
+                fallbackClassName="text-2xl"
+              />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handleAvatarFileChange}
+              />
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {t("avatar_upload")}
+                </Button>
+                {(displayAvatarUrl || profile?.avatar_url) && !removeAvatar ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={handleRemoveAvatar}
+                  >
+                    {t("avatar_remove")}
+                  </Button>
+                ) : null}
+              </div>
+            </div>
+          </Field>
+
           <Field>
             <FieldLabel>{t("first_name")}</FieldLabel>
             <Input

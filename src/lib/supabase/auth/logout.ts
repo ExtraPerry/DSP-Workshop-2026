@@ -15,5 +15,5 @@ export async function logout(options?: LogoutOptions) {
     return;
   }
 
-  redirect({ href: options?.redirectTo ?? "/login", locale: "en" });
+  redirect({ href: options?.redirectTo ?? "/", locale: "en" });
 }

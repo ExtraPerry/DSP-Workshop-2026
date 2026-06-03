@@ -10,6 +10,8 @@ import {
   EntityManager,
   type EntityField,
 } from "@/components/admin/entity-manager";
+import { ChallengeImageUpload } from "@/components/admin/challenge-image-upload";
+import type { Tables } from "@/lib/supabase/database.types";
 
 const BADGES_QUERY_KEY = ["adminBadges"] as const;
 const CHALLENGES_QUERY_KEY = ["adminChallenges"] as const;
@@ -141,6 +143,12 @@ export default function AdminGamificationPage() {
                 getSecondaryText={(item) =>
                   `${item.goal_type}: ${item.goal_count} — +${item.points_reward}`
                 }
+                renderRowExtra={(item: Tables<"challenges">) => (
+                  <ChallengeImageUpload
+                    challenge={item}
+                    queryKey={CHALLENGES_QUERY_KEY}
+                  />
+                )}
               />
             </CardContent>
           </Card>

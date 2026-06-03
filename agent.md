@@ -43,7 +43,7 @@ DSP-Workshop-2026/
 │   │       ├── (main)/           # Authenticated route group (renders Navbar)
 │   │       │   ├── layout.tsx
 │   │       │   ├── dashboard/
-│   │       │   ├── matching/, sessions/, feed/, friends/, profile/, ...
+│   │       │   ├── matching/, sessions/, feed/, friends/, profile/, account/, ...
 │   │       ├── (admin)/          # Admin route group (Navbar + role gate)
 │   │       │   └── admin/        # users, lookups, moderation, gamification, ...
 │   │       ├── login/
@@ -55,8 +55,9 @@ DSP-Workshop-2026/
 │   │       └── verify-email/
 │   │           └── page.tsx
 │   ├── components/
-│   │   ├── navbar.tsx            # Main nav (useCurrentUser, useCurrentUserRole for admin link)
-│   │   ├── public-header.tsx
+│   │   ├── navbar.tsx            # Main nav (useCurrentUserRole for admin link; UserAccountMenu when signed in)
+│   │   ├── public-header.tsx     # Public nav (UserAccountMenu when signed in on public pages)
+│   │   ├── user-account-menu.tsx # Shared dropdown: profile, account, sign out
 │   │   ├── lookup-combobox.tsx   # Searchable/clearable/creatable lookup selector
 │   │   ├── date-time-picker.tsx
 │   │   ├── language-switcher.tsx
@@ -93,6 +94,7 @@ DSP-Workshop-2026/
 │           └── auth/
 │               ├── login-with-email.ts            # Server action: sign in
 │               ├── register-with-email.ts         # Server action: sign up
+│               ├── change-password.ts               # Server action: change password (re-auth)
 │               └── logout.ts                       # Server action: sign out
 └── supabase/
     ├── config.toml               # Supabase CLI config (Postgres 17, Realtime enabled)
@@ -169,6 +171,8 @@ The provider tree is defined in `src/app/[locale]/layout.tsx`:
 | `campuses` | Lookup table for campuses (bilingual; user-proposable; `is_verified` + `created_by_user_id`) |
 | `friend_pairs` | Confirmed friendship relation between two users |
 | `friend_requests` | Pending friend request from one user to another |
+| `direct_conversations` | One direct-message thread per confirmed friendship (`friend_pair_id`) |
+| `direct_messages` | Messages within a friend direct-message conversation |
 | `match_requests` | Records a match attempt from one user to another for a specific skill |
 | `match_history` | Records completed/resolved match interactions for analytics and feedback |
 | `session_types` | Extensible lookup table for session categories (workshop, quick course, thematic club, etc.) |
@@ -200,7 +204,7 @@ The provider tree is defined in `src/app/[locale]/layout.tsx`:
 | `challenge_status_type` | `IN_PROGRESS`, `COMPLETED`, `FAILED`, `EXPIRED` |
 | `post_type` | `ACHIEVEMENT`, `RECOMMENDATION`, `FEEDBACK` |
 | `post_visibility_type` | `PUBLIC`, `FRIENDS_ONLY` |
-| `notification_type` | `MATCH_REQUEST`, `MATCH_ACCEPTED`, `SESSION_INVITE`, `SESSION_REMINDER`, `BADGE_EARNED`, `CHALLENGE_COMPLETED`, `FRIEND_REQUEST`, `POST_LIKE`, `POST_COMMENT`, `POST_SHARE`, `ADMIN_BROADCAST`, `ACCOUNT_SUSPENDED`, `CONTENT_REMOVED` |
+| `notification_type` | `MATCH_REQUEST`, `MATCH_ACCEPTED`, `SESSION_INVITE`, `SESSION_REMINDER`, `BADGE_EARNED`, `CHALLENGE_COMPLETED`, `FRIEND_REQUEST`, `POST_LIKE`, `POST_COMMENT`, `POST_SHARE`, `ADMIN_BROADCAST`, `ACCOUNT_SUSPENDED`, `CONTENT_REMOVED`, `DIRECT_MESSAGE` |
 | `report_status_type` | `PENDING`, `RESOLVED`, `DISMISSED` |
 
 #### Edge Functions
@@ -219,6 +223,9 @@ The provider tree is defined in `src/app/[locale]/layout.tsx`:
 | `handle_new_user()` | Trigger on `auth.users` insert: creates `public.users` + default `public.user_roles` row |
 | `handle_user_update()` | Trigger on `auth.users` update: syncs email and phone to `public.users` |
 | `is_user_admin()` | Returns `true` if the current authenticated user has the `ADMIN` role |
+| `is_user_in_friend_pair(pair_id)` | Returns `true` if the current authenticated user is either side of the given `friend_pairs` row |
+| `format_user_notification_label(user_id)` | Returns sender label as `first_name` + `.` + last-name initial (e.g. `Pierre.M`) for notifications |
+| `notify_direct_message_recipient()` | Trigger function: inserts a `DIRECT_MESSAGE` notification for the recipient when a direct message is sent |
 
 #### RLS Policy Pattern
 
@@ -241,8 +248,9 @@ The provider tree is defined in `src/app/[locale]/layout.tsx`:
 - **Auth routes**: defined by the `AUTH_ROUTES` constant in `src/proxy.ts` (`/login`, `/register`, `/verify-email`). Authenticated users visiting these are redirected to `/dashboard`.
 - **Default authenticated page**: `/dashboard` is the home dashboard logged-in users land on (after login and from the navbar logo/home link). The `/` route is a **public** marketing landing page under `(public)/` (hero, feature cards, login/register CTAs).
 - **Admin routes**: routes starting with `/admin` are protected by an additional middleware check in `src/proxy.ts` that queries the `user_roles` table and redirects non-admin users to `/dashboard`.
-- **Auth server actions**: live in `src/lib/supabase/auth/` (`login-with-email.ts`, `register-with-email.ts`, `logout.ts`). They use `"use server"` and the server Supabase client. UI never calls `supabase.auth.*` directly for sign-in/up/out -- it calls these actions.
-- **Current user on the client**: use the `useCurrentUser` hook (`src/hooks/use-current-user.ts`). It listens to `onAuthStateChange` and a Realtime channel, and exposes the `public.users` row via TanStack Query under `CURRENT_USER_QUERY_KEY`. After login/logout, invalidate or reset that key (see `login-form.tsx` and `navbar.tsx`).
+- **Auth server actions**: live in `src/lib/supabase/auth/` (`login-with-email.ts`, `register-with-email.ts`, `change-password.ts`, `logout.ts`). They use `"use server"` and the server Supabase client. UI never calls `supabase.auth.*` directly for sign-in/up/out/password change -- it calls these actions.
+- **User account menu**: `src/components/user-account-menu.tsx` is shared by `navbar.tsx` and `public-header.tsx`. Signed-in users get a dropdown (Profile, Account, Sign out) instead of a standalone logout control.
+- **Current user on the client**: use the `useCurrentUser` hook (`src/hooks/use-current-user.ts`). It listens to `onAuthStateChange` and a Realtime channel, and exposes the `public.users` row via TanStack Query under `CURRENT_USER_QUERY_KEY`. After login/logout, invalidate or reset that key (see `login-form.tsx` and `user-account-menu.tsx`).
 - **Auth → profile sync**: handled in the database, not the app. `handle_new_user()` creates the `public.users` + `public.user_roles` rows on sign-up; `handle_user_update()` syncs email/phone.
 
 ## 4. Coding Conventions
@@ -379,6 +387,7 @@ Edge functions are always managed through the Supabase CLI -- scaffolding, depen
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | Public | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public | Supabase anonymous key |
+| `NEXT_PUBLIC_SITE_URL` | Public | Canonical site URL for sitemap, robots, and metadata (e.g. `http://localhost:3000` in dev) |
 | `NEXT_PRIVATE_SUPABASE_ADMIN_KEY` | Server-only | Supabase service role key (never expose to client) |
 
 ### Getting Started

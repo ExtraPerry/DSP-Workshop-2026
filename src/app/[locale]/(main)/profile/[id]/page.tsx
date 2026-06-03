@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useUserProfile, userProfileQueryKey } from "@/hooks/use-user-profile";
+import { useUserCompletedChallenges } from "@/hooks/use-user-completed-challenges";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useFriendships, friendshipsQueryKey } from "@/hooks/use-friendships";
 import {
@@ -22,7 +23,7 @@ import createSupabaseBrowserClient from "@/lib/supabase/create-supabase-browser-
 import { Constants } from "@/lib/supabase/database.types";
 import type { Enums } from "@/lib/supabase/database.types";
 import { Link } from "@/i18n/navigation";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/user-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,15 +46,10 @@ import {
   Star,
   Trash2,
   Plus,
+  Trophy,
 } from "lucide-react";
 
 const WEEK_DAYS = Constants.public.Enums.week_day_type;
-
-function getInitials(firstName: string | null, lastName: string | null): string {
-  const first = firstName?.charAt(0)?.toUpperCase() ?? "";
-  const last = lastName?.charAt(0)?.toUpperCase() ?? "";
-  return first + last || "?";
-}
 
 export default function ProfilePage() {
   const t = useTranslations("Pages.ProfilePage");
@@ -62,6 +58,8 @@ export default function ProfilePage() {
   const params = useParams<{ id: string }>();
   const queryClient = useQueryClient();
   const { data: profile, isLoading } = useUserProfile(params.id);
+  const { data: completedChallenges, isLoading: isCompletedChallengesLoading } =
+    useUserCompletedChallenges(params.id);
   const { data: currentUser } = useCurrentUser();
   const { data: friendships } = useFriendships(currentUser?.id);
 
@@ -230,11 +228,13 @@ export default function ProfilePage() {
     <div className="mx-auto max-w-4xl space-y-6 p-6">
       <Card>
         <CardContent className="flex items-start gap-6 pt-6">
-          <Avatar className="size-20">
-            <AvatarFallback className="text-2xl">
-              {getInitials(profile.first_name, profile.last_name)}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar
+            avatarUrl={profile.avatar_url}
+            firstName={profile.first_name}
+            lastName={profile.last_name}
+            className="size-20"
+            fallbackClassName="text-2xl"
+          />
           <div className="flex-1">
             <h1 className="text-2xl font-semibold">
               {profile.first_name} {profile.last_name}
@@ -300,6 +300,10 @@ export default function ProfilePage() {
           <TabsTrigger value="availabilities">
             <Calendar className="mr-1 size-4" />
             {t("availabilities")}
+          </TabsTrigger>
+          <TabsTrigger value="challenges">
+            <Trophy className="mr-1 size-4" />
+            {t("completed_challenges")}
           </TabsTrigger>
         </TabsList>
 
@@ -636,6 +640,70 @@ export default function ProfilePage() {
                     <Plus className="mr-1 size-4" />
                     {t("add_availability")}
                   </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="challenges">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("completed_challenges")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isCompletedChallengesLoading ? (
+                <Skeleton className="h-24 w-full" />
+              ) : !completedChallenges?.length ? (
+                <p className="text-muted-foreground">
+                  {t("no_completed_challenges")}
+                </p>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {completedChallenges.map((userChallenge) => {
+                    const challenge = userChallenge.challenge;
+                    if (!challenge) {
+                      return null;
+                    }
+                    return (
+                      <div
+                        key={userChallenge.id}
+                        className="overflow-hidden rounded-md border"
+                      >
+                        <div className="aspect-video bg-muted">
+                          {challenge.image_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={challenge.image_url}
+                              alt={getLocalizedName(challenge, locale)}
+                              className="size-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex size-full items-center justify-center text-muted-foreground">
+                              <Trophy className="size-10" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="space-y-1 p-3">
+                          <p className="font-medium">
+                            {getLocalizedName(challenge, locale)}
+                          </p>
+                          <div className="flex items-center justify-between text-sm text-muted-foreground">
+                            <span>
+                              {userChallenge.completed_at
+                                ? new Date(
+                                    userChallenge.completed_at
+                                  ).toLocaleDateString(locale)
+                                : "—"}
+                            </span>
+                            <Badge variant="secondary">
+                              +{challenge.points_reward}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </CardContent>

@@ -10,7 +10,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { friendshipsQueryKey } from "@/hooks/use-friendships";
 import { sendFriendRequest } from "@/lib/friendships/send-friend-request";
 import { Link } from "@/i18n/navigation";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatarFromRecord } from "@/components/user-avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,8 +21,9 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UserCheck, UserX, Eye, UserPlus, Search } from "lucide-react";
+import { UserCheck, UserX, Eye, UserPlus, Search, MessageCircle } from "lucide-react";
 import type { FriendUser } from "@/hooks/use-friendships";
+import { FriendDirectMessageSheet } from "@/components/friends/friend-direct-message-sheet";
 
 function getUserDisplayName(user: FriendUser | null): string {
   if (!user) return "Unknown";
@@ -31,19 +32,16 @@ function getUserDisplayName(user: FriendUser | null): string {
   return user.email ?? "Unknown";
 }
 
-function getInitials(user: FriendUser | null): string {
-  if (!user) return "?";
-  const first = user.first_name?.charAt(0)?.toUpperCase() ?? "";
-  const last = user.last_name?.charAt(0)?.toUpperCase() ?? "";
-  return first + last || "?";
-}
-
 export default function FriendsPage() {
   const t = useTranslations("Pages.FriendsPage");
   const { data: currentUser } = useCurrentUser();
   const { data: friendships, isLoading } = useFriendships(currentUser?.id);
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeChat, setActiveChat] = useState<{
+    friendPairId: string;
+    friendUser: FriendUser;
+  } | null>(null);
 
   const { data: searchResults } = useQuery({
     queryKey: ["userSearch", searchTerm],
@@ -53,7 +51,7 @@ export default function FriendsPage() {
       const term = `%${searchTerm.trim()}%`;
       const { data, error } = await supabase
         .from("users")
-        .select("id, first_name, last_name, email")
+        .select("id, first_name, last_name, email, avatar_url")
         .or(
           `first_name.ilike.${term},last_name.ilike.${term},email.ilike.${term}`
         )
@@ -177,9 +175,7 @@ export default function FriendsPage() {
                         className="flex items-center justify-between rounded-md border p-3"
                       >
                         <div className="flex items-center gap-3">
-                          <Avatar>
-                            <AvatarFallback>{getInitials(user)}</AvatarFallback>
-                          </Avatar>
+                          <UserAvatarFromRecord user={user} />
                           <span className="font-medium">
                             {getUserDisplayName(user)}
                           </span>
@@ -237,14 +233,27 @@ export default function FriendsPage() {
                         className="flex items-center justify-between rounded-md border p-3"
                       >
                         <div className="flex items-center gap-3">
-                          <Avatar>
-                            <AvatarFallback>{getInitials(friend)}</AvatarFallback>
-                          </Avatar>
+                          <UserAvatarFromRecord user={friend} />
                           <span className="font-medium">
                             {getUserDisplayName(friend)}
                           </span>
                         </div>
                         <div className="flex gap-2">
+                          {friend && currentUser && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                setActiveChat({
+                                  friendPairId: pair.id,
+                                  friendUser: friend,
+                                })
+                              }
+                            >
+                              <MessageCircle className="mr-1 size-4" />
+                              {t("message")}
+                            </Button>
+                          )}
                           <Button asChild variant="ghost" size="sm">
                             <Link href={`/profile/${friend?.id}`}>
                               <Eye className="mr-1 size-4" />
@@ -285,11 +294,7 @@ export default function FriendsPage() {
                       className="flex items-center justify-between rounded-md border p-3"
                     >
                       <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarFallback>
-                            {getInitials(request.requestor)}
-                          </AvatarFallback>
-                        </Avatar>
+                        <UserAvatarFromRecord user={request.requestor} />
                         <span className="font-medium">
                           {getUserDisplayName(request.requestor)}
                         </span>
@@ -340,11 +345,7 @@ export default function FriendsPage() {
                       className="flex items-center justify-between rounded-md border p-3"
                     >
                       <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarFallback>
-                            {getInitials(request.receiver)}
-                          </AvatarFallback>
-                        </Avatar>
+                        <UserAvatarFromRecord user={request.receiver} />
                         <span className="font-medium">
                           {getUserDisplayName(request.receiver)}
                         </span>
@@ -364,6 +365,18 @@ export default function FriendsPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {activeChat && currentUser && (
+        <FriendDirectMessageSheet
+          open={Boolean(activeChat)}
+          onOpenChange={(open) => {
+            if (!open) setActiveChat(null);
+          }}
+          friendPairId={activeChat.friendPairId}
+          friendUser={activeChat.friendUser}
+          currentUserId={currentUser.id}
+        />
+      )}
     </div>
   );
 }
