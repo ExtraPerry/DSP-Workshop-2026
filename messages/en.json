@@ -9,6 +9,7 @@
       "friends": "Friends",
       "notifications": "Notifications",
       "profile": "Profile",
+      "admin": "Admin",
       "logout": "Sign Out",
       "login": "Sign In"
     },
@@ -22,6 +23,36 @@
       "label": "Change language",
       "en": "English",
       "fr": "Français"
+    },
+    "LookupCombobox": {
+      "placeholder": "Select...",
+      "search_placeholder": "Search or add...",
+      "empty": "No results.",
+      "any": "Any",
+      "unverified": "Unverified",
+      "create": "Create \"{name}\""
+    },
+    "DateTimePicker": {
+      "placeholder": "Pick a date and time",
+      "time_label": "Time"
+    },
+    "PublicHeader": {
+      "home": "Home",
+      "about": "About",
+      "faq": "FAQ",
+      "contact": "Contact",
+      "login": "Sign In",
+      "register": "Get Started",
+      "logout": "Sign Out"
+    },
+    "Weekdays": {
+      "MONDAY": "Mon",
+      "TUESDAY": "Tue",
+      "WEDNESDAY": "Wed",
+      "THURSDAY": "Thu",
+      "FRIDAY": "Fri",
+      "SATURDAY": "Sat",
+      "SUNDAY": "Sun"
     }
   },
   "MetaData": {
@@ -31,6 +62,20 @@
   "Pages": {
     "NotFoundPage": {
       "title": "This page could not be found."
+    },
+    "LandingPage": {
+      "hero_title": "Swap skills. Grow together.",
+      "hero_subtitle": "The peer-to-peer learning network for students.",
+      "hero_description": "SkillSwap connects students on the same campus through complementary skills. Share what you can teach, discover what you want to learn, and get matched into hands-on learning sessions.",
+      "cta_get_started": "Get Started",
+      "cta_login": "Sign In",
+      "features_title": "How it works",
+      "feature_matching_title": "Smart matching",
+      "feature_matching_text": "Get paired with students who can teach what you want to learn — and learn what you can teach.",
+      "feature_sessions_title": "Learning sessions",
+      "feature_sessions_text": "Organize and join workshops, quick courses and clubs right on your campus.",
+      "feature_gamification_title": "Earn as you learn",
+      "feature_gamification_text": "Collect points, unlock badges and climb the leaderboard as you teach and learn."
     },
     "HomePage": {
       "hello_world": "Hello World",
@@ -106,7 +151,21 @@
       "friends": "Friends",
       "member_since": "Member since",
       "loading": "Loading profile...",
-      "not_found": "User not found"
+      "not_found": "User not found",
+      "bio": "Bio",
+      "no_bio": "No bio yet.",
+      "add": "Add",
+      "remove": "Remove",
+      "skill_description": "Description (optional)",
+      "start": "Start",
+      "end": "End",
+      "recurring_days": "Recurring days",
+      "add_skill": "Add a skill",
+      "add_course": "Add a course",
+      "add_campus": "Add a campus",
+      "add_availability": "Add availability",
+      "request_sent": "Request sent",
+      "add_error": "Could not save your changes."
     },
     "ProfileEditPage": {
       "title": "Edit Profile",
@@ -116,6 +175,8 @@
       "phone": "Phone",
       "academic_level": "Academic Level",
       "select_level": "Select a level",
+      "bio": "Bio",
+      "bio_placeholder": "Tell others about yourself...",
       "save": "Save Changes",
       "cancel": "Cancel",
       "success": "Profile updated successfully",
@@ -158,7 +219,14 @@
       "reject": "Reject",
       "cancel_request": "Cancel",
       "remove_friend": "Remove",
-      "view_profile": "View Profile"
+      "view_profile": "View Profile",
+      "search_title": "Find people",
+      "search_placeholder": "Search by name or email...",
+      "send_request": "Send request",
+      "request_sent": "Request sent",
+      "no_search_results": "No users found",
+      "already_friends": "Friends",
+      "request_pending": "Pending"
     },
     "MatchingPage": {
       "title": "Find a Match",
@@ -250,8 +318,11 @@
       "comment": "Comment",
       "share": "Share",
       "comments": "Comments",
+      "no_comments": "No comments yet.",
       "write_comment": "Write a comment...",
       "post_comment": "Post",
+      "general_tab": "General",
+      "friends_tab": "Friends",
       "delete_post": "Delete",
       "report_post": "Report",
       "loading": "Loading feed...",
@@ -294,8 +365,18 @@
       "no_notifications": "No notifications",
       "loading": "Loading notifications..."
     },
+    "AdminCommon": {
+      "generic_error": "Something went wrong. Please try again.",
+      "error_not_authenticated": "You must be signed in.",
+      "error_forbidden": "You do not have permission to perform this action.",
+      "error_user_not_found": "User not found.",
+      "role_user": "User",
+      "role_admin": "Administrator"
+    },
     "AdminPage": {
       "title": "Admin Dashboard",
+      "overview": "Overview",
+      "sub_nav_label": "Admin sections",
       "users": "Users",
       "moderation": "Moderation",
       "lookups": "Lookups",
@@ -325,7 +406,17 @@
       "delete": "Delete",
       "confirm_delete": "Are you sure you want to delete this user?",
       "no_users": "No users found",
-      "loading": "Loading users..."
+      "loading": "Loading users...",
+      "cancel": "Cancel",
+      "deleted": "User deleted",
+      "delete_failed": "Could not delete user",
+      "updated": "User updated",
+      "details": "User Details",
+      "bio": "Bio",
+      "back": "Back to users",
+      "role_user": "User",
+      "role_admin": "Administrator",
+      "user_id": "User ID"
     },
     "AdminModerationPage": {
       "title": "Content Moderation",
@@ -337,7 +428,23 @@
       "resolve": "Resolve",
       "dismiss": "Dismiss",
       "resolution_note": "Resolution note",
-      "loading": "Loading reports..."
+      "loading": "Loading reports...",
+      "remove_content": "Remove content",
+      "suspend_offender": "Suspend author",
+      "content_not_found": "Content no longer available",
+      "resolved": "Report resolved",
+      "dismissed": "Report dismissed",
+      "content_removed": "Content removed",
+      "offender_suspended": "Author suspended",
+      "warn_offender": "Warn author",
+      "offender_warned": "Warning sent to author",
+      "warn_notification_title": "Content moderation warning",
+      "warn_notification_body": "Your content was reported for: {reason}. Please review our community guidelines.",
+      "entity_type_post": "Post",
+      "entity_type_comment": "Comment",
+      "report_status_PENDING": "Pending",
+      "report_status_RESOLVED": "Resolved",
+      "report_status_DISMISSED": "Dismissed"
     },
     "AdminLookupsPage": {
       "title": "Lookup Tables",
@@ -354,13 +461,51 @@
       "save": "Save",
       "cancel": "Cancel",
       "confirm_delete": "Are you sure?",
-      "no_items": "No items"
+      "no_items": "No items",
+      "search_placeholder": "Search...",
+      "add_title": "Add item",
+      "edit_title": "Edit item",
+      "verify": "Verify",
+      "reject": "Reject",
+      "verified": "Verified",
+      "unverified": "Unverified",
+      "pending_section": "Pending verification",
+      "proposed_by": "Proposed by a user"
     },
     "AdminSessionsPage": {
       "title": "Session Oversight",
       "no_sessions": "No sessions",
       "cancel_session": "Cancel Session",
-      "loading": "Loading sessions..."
+      "loading": "Loading sessions...",
+      "search_placeholder": "Search by title...",
+      "filter_status": "Filter by status",
+      "all_statuses": "All statuses",
+      "status_planned": "Planned",
+      "status_in_progress": "In Progress",
+      "status_completed": "Completed",
+      "status_cancelled": "Cancelled",
+      "change_status": "Change status",
+      "delete": "Delete",
+      "confirm_delete": "Delete this session?",
+      "cancel": "Cancel",
+      "updated": "Session updated",
+      "deleted": "Session deleted",
+      "edit": "Edit",
+      "save": "Save",
+      "edit_session": "Edit session",
+      "edit_validation_error": "Please fill in all required fields.",
+      "field_title": "Title",
+      "field_description": "Description",
+      "field_session_type": "Session type",
+      "field_skill": "Skill",
+      "field_campus": "Campus",
+      "field_location": "Location",
+      "field_max_participants": "Max participants",
+      "field_start": "Start",
+      "field_end": "End",
+      "select_session_type": "Select session type",
+      "select_skill": "Select skill",
+      "select_campus": "Select campus"
     },
     "AdminGamificationPage": {
       "title": "Gamification Management",
@@ -371,7 +516,26 @@
       "add_challenge": "Add Challenge",
       "add_action": "Add Action",
       "no_items": "No items",
-      "loading": "Loading..."
+      "loading": "Loading...",
+      "add": "Add",
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save",
+      "cancel": "Cancel",
+      "confirm_delete": "Delete this item?",
+      "add_title": "Add item",
+      "edit_title": "Edit item",
+      "field_name_fr": "Name (FR)",
+      "field_name_en": "Name (EN)",
+      "field_description_fr": "Description (FR)",
+      "field_description_en": "Description (EN)",
+      "field_criteria": "Criteria",
+      "field_points": "Points",
+      "field_action_key": "Action key",
+      "field_goal_type": "Goal type",
+      "field_goal_count": "Goal count",
+      "field_start_date": "Start date",
+      "field_end_date": "End date"
     },
     "AdminNotificationsPage": {
       "title": "Broadcast Notifications",
@@ -382,9 +546,17 @@
       "all_users": "All Users",
       "by_campus": "By Campus",
       "by_course": "By Course",
+      "by_role": "By Role",
+      "select_campus": "Select campus",
+      "select_course": "Select course",
+      "select_role": "Select role",
       "send": "Send",
       "history": "Broadcast History",
-      "no_history": "No broadcasts sent yet"
+      "no_history": "No broadcasts sent yet",
+      "sent_success": "Broadcast sent",
+      "no_recipients": "No recipients match this filter",
+      "recipients": "recipients",
+      "sending": "Sending..."
     },
     "PrivacyPolicyPage": {
       "title": "Privacy Policy",

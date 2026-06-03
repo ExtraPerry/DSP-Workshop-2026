@@ -165,15 +165,15 @@ begin
   select id into level_m1 from public.academic_levels where name_fr = 'Master 1';
   select id into level_m2 from public.academic_levels where name_fr = 'Master 2';
 
-  insert into public.skills (name_fr, name_en) values
-    ('JavaScript', 'JavaScript'),
-    ('Python', 'Python'),
-    ('Guitare', 'Guitar'),
-    ('Prise de parole', 'Public Speaking'),
-    ('Espagnol', 'Spanish'),
-    ('Photographie', 'Photography'),
-    ('Cuisine', 'Cooking'),
-    ('Mathématiques', 'Mathematics');
+  insert into public.skills (name_fr, name_en, is_verified) values
+    ('JavaScript', 'JavaScript', true),
+    ('Python', 'Python', true),
+    ('Guitare', 'Guitar', true),
+    ('Prise de parole', 'Public Speaking', true),
+    ('Espagnol', 'Spanish', true),
+    ('Photographie', 'Photography', true),
+    ('Cuisine', 'Cooking', true),
+    ('Mathématiques', 'Mathematics', true);
 
   select id into skill_javascript from public.skills where name_fr = 'JavaScript';
   select id into skill_python from public.skills where name_fr = 'Python';
@@ -184,19 +184,19 @@ begin
   select id into skill_cooking from public.skills where name_fr = 'Cuisine';
   select id into skill_mathematics from public.skills where name_fr = 'Mathématiques';
 
-  insert into public.campuses (name_fr, name_en) values
-    ('Campus de Paris', 'Paris Campus'),
-    ('Campus de Lyon', 'Lyon Campus'),
-    ('Campus de Lille', 'Lille Campus');
+  insert into public.campuses (name_fr, name_en, is_verified) values
+    ('Campus de Paris', 'Paris Campus', true),
+    ('Campus de Lyon', 'Lyon Campus', true),
+    ('Campus de Lille', 'Lille Campus', true);
 
   select id into campus_paris from public.campuses where name_fr = 'Campus de Paris';
   select id into campus_lyon from public.campuses where name_fr = 'Campus de Lyon';
   select id into campus_lille from public.campuses where name_fr = 'Campus de Lille';
 
-  insert into public.courses (name_fr, name_en) values
-    ('Licence Informatique', 'Bachelor in Computer Science'),
-    ('Master Data Science', 'Master in Data Science'),
-    ('Licence Design', 'Bachelor in Design');
+  insert into public.courses (name_fr, name_en, is_verified) values
+    ('Licence Informatique', 'Bachelor in Computer Science', true),
+    ('Master Data Science', 'Master in Data Science', true),
+    ('Licence Design', 'Bachelor in Design', true);
 
   select id into course_bachelor_cs from public.courses where name_fr = 'Licence Informatique';
   select id into course_master_data from public.courses where name_fr = 'Master Data Science';
@@ -210,13 +210,47 @@ begin
   ---------------------------------------------------------------------------
   -- 3. USER PROFILES (enrich the trigger-created rows + promote the admin).
   ---------------------------------------------------------------------------
-  update public.users set first_name = 'Admin',  last_name = 'SkillSwap', phone = '+33600000001', academic_level_id = level_m2 where id = admin_user;
-  update public.users set first_name = 'Alice',  last_name = 'Martin',    phone = '+33600000002', academic_level_id = level_l1 where id = alice_user;
-  update public.users set first_name = 'Bob',    last_name = 'Durand',    phone = '+33600000003', academic_level_id = level_m1 where id = bob_user;
-  update public.users set first_name = 'Carol',  last_name = 'Bernard',   phone = '+33600000004', academic_level_id = level_m2 where id = carol_user;
-  update public.users set first_name = 'David',  last_name = 'Petit',     phone = '+33600000005', academic_level_id = level_l1 where id = david_user;
-  update public.users set first_name = 'Emma',   last_name = 'Leroy',     phone = '+33600000006', academic_level_id = level_l3 where id = emma_user;
-  update public.users set first_name = 'Frank',  last_name = 'Moreau',    phone = '+33600000007', academic_level_id = level_l3 where id = frank_user;
+  update public.users set
+    first_name = 'Admin', last_name = 'SkillSwap', phone = '+33600000001',
+    academic_level_id = level_m2,
+    bio = 'Platform administrator for SkillSwap. Here to keep the community running smoothly and help students get the most out of peer learning.'
+  where id = admin_user;
+
+  update public.users set
+    first_name = 'Alice', last_name = 'Martin', phone = '+33600000002',
+    academic_level_id = level_l1,
+    bio = 'First-year CS student on the Paris campus. I have been playing guitar for years and love teaching beginners. Just started coding in JavaScript and looking for a patient mentor.'
+  where id = alice_user;
+
+  update public.users set
+    first_name = 'Bob', last_name = 'Durand', phone = '+33600000003',
+    academic_level_id = level_m1,
+    bio = 'Master''s student in Data Science, full-stack developer by day. Happy to help with JavaScript workshops. On the side I am picking up guitar — open to jam sessions and beginner tips.'
+  where id = bob_user;
+
+  update public.users set
+    first_name = 'Carol', last_name = 'Bernard', phone = '+33600000004',
+    academic_level_id = level_m2,
+    bio = 'Data scientist finishing my Master''s in Lyon. I teach Python from scratch and cook on weekends. Still working on my public speaking — always up for practice partners.'
+  where id = carol_user;
+
+  update public.users set
+    first_name = 'David', last_name = 'Petit', phone = '+33600000005',
+    academic_level_id = level_l1,
+    bio = 'Debate club captain and first-year CS student. I coach people through stage fright and structuring talks. Brand new to Python but very motivated to learn.'
+  where id = david_user;
+
+  update public.users set
+    first_name = 'Emma', last_name = 'Leroy', phone = '+33600000006',
+    academic_level_id = level_l3,
+    bio = 'Design student in Lille, native Spanish speaker. I run an informal Spanish conversation club on campus. Recently bought my first camera and exploring photography.'
+  where id = emma_user;
+
+  update public.users set
+    first_name = 'Frank', last_name = 'Moreau', phone = '+33600000007',
+    academic_level_id = level_l3,
+    bio = 'Semi-professional photographer and design student based in Lille. I can help with composition, lighting and editing. Learning Spanish to travel more — conversational practice welcome.'
+  where id = frank_user;
 
   update public.user_roles set role = 'ADMIN' where user_id = admin_user;
 

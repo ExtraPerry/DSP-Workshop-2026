@@ -13,8 +13,10 @@ import {
   Trophy,
   Users,
   Bell,
+  Shield,
 } from "lucide-react";
 import { useCurrentUser, CURRENT_USER_QUERY_KEY } from "@/hooks/use-current-user";
+import { useCurrentUserRole } from "@/hooks/use-current-user-role";
 import { logout } from "@/lib/supabase/auth/logout";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +27,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { SiteBrand } from "@/components/site-brand";
 
 const navigationLinks = [
   { href: "/dashboard", labelKey: "home", icon: null },
@@ -51,6 +54,7 @@ export function Navbar() {
   const queryClient = useQueryClient();
   const { data: currentUser, isLoading: isCurrentUserLoading } =
     useCurrentUser();
+  const { isAdmin } = useCurrentUserRole();
 
   const displayName = currentUser
     ? formatDisplayName(currentUser.first_name, currentUser.last_name)
@@ -62,9 +66,7 @@ export function Navbar() {
         className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
         aria-label="Main navigation"
       >
-        <Link href="/dashboard" className="shrink-0">
-          <span className="text-lg font-bold text-primary">SkillSwap</span>
-        </Link>
+        <SiteBrand />
 
         <NavigationMenu>
           <NavigationMenuList>
@@ -86,6 +88,18 @@ export function Navbar() {
                 </NavigationMenuItem>
               );
             })}
+            {isAdmin && (
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link href="/admin" className="flex items-center gap-1.5">
+                    <Shield className="size-4" />
+                    <span className="hidden lg:inline">
+                      {translations("admin")}
+                    </span>
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
 

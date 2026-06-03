@@ -1,13 +1,17 @@
 "use client";
 
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { useSkills, useCampuses } from "@/hooks/use-lookups";
-import { useRealtimeQuery } from "@/hooks/use-realtime-query";
-import { getLocalizedName } from "@/lib/localized-name";
+import {
+  useSkills,
+  useCampuses,
+  useSessionTypes,
+  useProposeSkill,
+  useProposeCampus,
+} from "@/hooks/use-lookups";
 import createSupabaseBrowserClient from "@/lib/supabase/create-supabase-browser-client";
 import { useRouter } from "@/i18n/navigation";
 import { Input } from "@/components/ui/input";
@@ -19,13 +23,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { LookupCombobox } from "@/components/lookup-combobox";
+import { DateTimePicker } from "@/components/date-time-picker";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 
 function extractErrorMessages(errors: unknown[]): string {
@@ -43,25 +42,13 @@ function extractErrorMessages(errors: unknown[]): string {
 
 export default function SessionCreatePage() {
   const t = useTranslations("Pages.SessionCreatePage");
-  const locale = useLocale();
   const router = useRouter();
   const { data: currentUser } = useCurrentUser();
   const { data: skills } = useSkills();
   const { data: campuses } = useCampuses();
-
-  const { data: sessionTypes } = useRealtimeQuery({
-    queryKey: ["sessionTypes"],
-    queryFn: async () => {
-      const supabase = createSupabaseBrowserClient();
-      const { data, error } = await supabase
-        .from("session_types")
-        .select("*")
-        .order("name_fr");
-      if (error) throw error;
-      return data ?? [];
-    },
-    realtimeSubscriptions: [{ table: "session_types" }],
-  });
+  const { data: sessionTypes } = useSessionTypes();
+  const proposeSkill = useProposeSkill();
+  const proposeCampus = useProposeCampus();
 
   const form = useForm({
     defaultValues: {
@@ -157,24 +144,19 @@ export default function SessionCreatePage() {
             <form.Field
               name="sessionTypeId"
               validators={{
-                onBlur: z.string().min(1, t("errors.type_required")),
+                onChange: z.string().min(1, t("errors.type_required")),
               }}
             >
               {(field) => (
                 <Field data-invalid={field.state.meta.errors.length > 0 || undefined}>
                   <FieldLabel>{t("type")}</FieldLabel>
-                  <Select value={field.state.value} onValueChange={field.handleChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t("select_type")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sessionTypes?.map((type: { id: string; name_fr: string; name_en: string | null }) => (
-                        <SelectItem key={type.id} value={type.id}>
-                          {getLocalizedName(type, locale)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <LookupCombobox
+                    items={sessionTypes ?? []}
+                    value={field.state.value || null}
+                    onChange={(id) => field.handleChange(id ?? "")}
+                    placeholder={t("select_type")}
+                    allowClear
+                  />
                   {field.state.meta.errors.length > 0 && (
                     <FieldError>{extractErrorMessages(field.state.meta.errors)}</FieldError>
                   )}
@@ -185,24 +167,27 @@ export default function SessionCreatePage() {
             <form.Field
               name="skillId"
               validators={{
-                onBlur: z.string().min(1, t("errors.skill_required")),
+                onChange: z.string().min(1, t("errors.skill_required")),
               }}
             >
               {(field) => (
                 <Field data-invalid={field.state.meta.errors.length > 0 || undefined}>
                   <FieldLabel>{t("skill")}</FieldLabel>
-                  <Select value={field.state.value} onValueChange={field.handleChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t("select_skill")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {skills?.map((skill) => (
-                        <SelectItem key={skill.id} value={skill.id}>
-                          {getLocalizedName(skill, locale)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <LookupCombobox
+                    items={skills ?? []}
+                    value={field.state.value || null}
+                    onChange={(id) => field.handleChange(id ?? "")}
+                    placeholder={t("select_skill")}
+                    allowClear
+                    allowCreate
+                    onCreate={async (name) => {
+                      const row = await proposeSkill.mutateAsync({
+                        name,
+                        createdByUserId: currentUser!.id,
+                      });
+                      return row.id;
+                    }}
+                  />
                   {field.state.meta.errors.length > 0 && (
                     <FieldError>{extractErrorMessages(field.state.meta.errors)}</FieldError>
                   )}
@@ -214,18 +199,21 @@ export default function SessionCreatePage() {
               {(field) => (
                 <Field>
                   <FieldLabel>{t("campus")}</FieldLabel>
-                  <Select value={field.state.value} onValueChange={field.handleChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t("select_campus")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {campuses?.map((campus) => (
-                        <SelectItem key={campus.id} value={campus.id}>
-                          {getLocalizedName(campus, locale)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <LookupCombobox
+                    items={campuses ?? []}
+                    value={field.state.value || null}
+                    onChange={(id) => field.handleChange(id ?? "")}
+                    placeholder={t("select_campus")}
+                    allowClear
+                    allowCreate
+                    onCreate={async (name) => {
+                      const row = await proposeCampus.mutateAsync({
+                        name,
+                        createdByUserId: currentUser!.id,
+                      });
+                      return row.id;
+                    }}
+                  />
                 </Field>
               )}
             </form.Field>
@@ -258,17 +246,15 @@ export default function SessionCreatePage() {
             <form.Field
               name="startTimestamp"
               validators={{
-                onBlur: z.string().min(1, t("errors.start_required")),
+                onChange: z.string().min(1, t("errors.start_required")),
               }}
             >
               {(field) => (
                 <Field data-invalid={field.state.meta.errors.length > 0 || undefined}>
                   <FieldLabel>{t("start_time")}</FieldLabel>
-                  <Input
-                    type="datetime-local"
+                  <DateTimePicker
                     value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
+                    onChange={field.handleChange}
                   />
                   {field.state.meta.errors.length > 0 && (
                     <FieldError>{extractErrorMessages(field.state.meta.errors)}</FieldError>
@@ -280,17 +266,15 @@ export default function SessionCreatePage() {
             <form.Field
               name="endTimestamp"
               validators={{
-                onBlur: z.string().min(1, t("errors.end_required")),
+                onChange: z.string().min(1, t("errors.end_required")),
               }}
             >
               {(field) => (
                 <Field data-invalid={field.state.meta.errors.length > 0 || undefined}>
                   <FieldLabel>{t("end_time")}</FieldLabel>
-                  <Input
-                    type="datetime-local"
+                  <DateTimePicker
                     value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
+                    onChange={field.handleChange}
                   />
                   {field.state.meta.errors.length > 0 && (
                     <FieldError>{extractErrorMessages(field.state.meta.errors)}</FieldError>

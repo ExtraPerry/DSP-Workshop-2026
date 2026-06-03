@@ -1,10 +1,22 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useSkills, useCourses, useCampuses, useAcademicLevels } from "@/hooks/use-lookups";
+import {
+  useSkills,
+  useCourses,
+  useCampuses,
+  useAcademicLevels,
+  useSessionTypes,
+  SKILLS_QUERY_KEY,
+  COURSES_QUERY_KEY,
+  CAMPUSES_QUERY_KEY,
+  ACADEMIC_LEVELS_QUERY_KEY,
+  SESSION_TYPES_QUERY_KEY,
+} from "@/hooks/use-lookups";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { LookupTableManager } from "@/components/admin/lookup-table-manager";
 
 export default function AdminLookupsPage() {
   const t = useTranslations("Pages.AdminLookupsPage");
@@ -12,36 +24,20 @@ export default function AdminLookupsPage() {
   const { data: courses, isLoading: coursesLoading } = useCourses();
   const { data: campuses, isLoading: campusesLoading } = useCampuses();
   const { data: academicLevels, isLoading: levelsLoading } = useAcademicLevels();
+  const { data: sessionTypes, isLoading: typesLoading } = useSessionTypes();
 
-  const isLoading = skillsLoading || coursesLoading || campusesLoading || levelsLoading;
+  const isLoading =
+    skillsLoading ||
+    coursesLoading ||
+    campusesLoading ||
+    levelsLoading ||
+    typesLoading;
 
   if (isLoading) {
     return (
       <div className="mx-auto max-w-4xl space-y-4 p-6">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-64 w-full rounded-lg" />
-      </div>
-    );
-  }
-
-  function renderLookupTable(items: { id: string; name_fr: string; name_en: string | null }[] | undefined) {
-    if (!items || items.length === 0) {
-      return <p className="text-muted-foreground">{t("no_items")}</p>;
-    }
-    return (
-      <div className="space-y-2">
-        {items.map((item) => (
-          <div key={item.id} className="flex items-center justify-between rounded-md border p-3">
-            <div>
-              <span className="font-medium">{item.name_fr}</span>
-              {item.name_en && (
-                <span className="ml-2 text-sm text-muted-foreground">
-                  ({item.name_en})
-                </span>
-              )}
-            </div>
-          </div>
-        ))}
       </div>
     );
   }
@@ -55,7 +51,10 @@ export default function AdminLookupsPage() {
           <TabsTrigger value="skills">{t("skills")}</TabsTrigger>
           <TabsTrigger value="courses">{t("courses")}</TabsTrigger>
           <TabsTrigger value="campuses">{t("campuses")}</TabsTrigger>
-          <TabsTrigger value="academic_levels">{t("academic_levels")}</TabsTrigger>
+          <TabsTrigger value="academic_levels">
+            {t("academic_levels")}
+          </TabsTrigger>
+          <TabsTrigger value="session_types">{t("session_types")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="skills">
@@ -63,7 +62,14 @@ export default function AdminLookupsPage() {
             <CardHeader>
               <CardTitle>{t("skills")}</CardTitle>
             </CardHeader>
-            <CardContent>{renderLookupTable(skills)}</CardContent>
+            <CardContent>
+              <LookupTableManager
+                tableName="skills"
+                items={skills}
+                queryKey={SKILLS_QUERY_KEY}
+                supportsVerification
+              />
+            </CardContent>
           </Card>
         </TabsContent>
 
@@ -72,7 +78,14 @@ export default function AdminLookupsPage() {
             <CardHeader>
               <CardTitle>{t("courses")}</CardTitle>
             </CardHeader>
-            <CardContent>{renderLookupTable(courses)}</CardContent>
+            <CardContent>
+              <LookupTableManager
+                tableName="courses"
+                items={courses}
+                queryKey={COURSES_QUERY_KEY}
+                supportsVerification
+              />
+            </CardContent>
           </Card>
         </TabsContent>
 
@@ -81,7 +94,14 @@ export default function AdminLookupsPage() {
             <CardHeader>
               <CardTitle>{t("campuses")}</CardTitle>
             </CardHeader>
-            <CardContent>{renderLookupTable(campuses)}</CardContent>
+            <CardContent>
+              <LookupTableManager
+                tableName="campuses"
+                items={campuses}
+                queryKey={CAMPUSES_QUERY_KEY}
+                supportsVerification
+              />
+            </CardContent>
           </Card>
         </TabsContent>
 
@@ -90,7 +110,28 @@ export default function AdminLookupsPage() {
             <CardHeader>
               <CardTitle>{t("academic_levels")}</CardTitle>
             </CardHeader>
-            <CardContent>{renderLookupTable(academicLevels)}</CardContent>
+            <CardContent>
+              <LookupTableManager
+                tableName="academic_levels"
+                items={academicLevels}
+                queryKey={ACADEMIC_LEVELS_QUERY_KEY}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="session_types">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("session_types")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <LookupTableManager
+                tableName="session_types"
+                items={sessionTypes}
+                queryKey={SESSION_TYPES_QUERY_KEY}
+              />
+            </CardContent>
           </Card>
         </TabsContent>
       </Tabs>

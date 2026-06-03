@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { resolveNotificationText } from "@/lib/notifications/resolve-notification-text";
 import { useRealtimeQuery } from "@/hooks/use-realtime-query";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import createSupabaseBrowserClient from "@/lib/supabase/create-supabase-browser-client";
@@ -94,10 +95,10 @@ export default function NotificationsPage() {
                 )}
                 <div className="flex-1">
                   <p className="text-sm font-medium">
-                    {notification.title_key}
+                    {resolveNotificationText(notification.title_key)}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {notification.body_key}
+                    {resolveNotificationText(notification.body_key)}
                   </p>
                 </div>
                 <span className="text-xs text-muted-foreground">

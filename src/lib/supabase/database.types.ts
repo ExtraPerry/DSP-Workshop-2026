@@ -80,26 +80,40 @@ export type Database = {
       campuses: {
         Row: {
           created_at: string
+          created_by_user_id: string | null
           id: string
+          is_verified: boolean
           name_en: string | null
           name_fr: string
           updated_at: string
         }
         Insert: {
           created_at?: string
+          created_by_user_id?: string | null
           id?: string
+          is_verified?: boolean
           name_en?: string | null
           name_fr: string
           updated_at?: string
         }
         Update: {
           created_at?: string
+          created_by_user_id?: string | null
           id?: string
+          is_verified?: boolean
           name_en?: string | null
           name_fr?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "campuses_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       challenges: {
         Row: {
@@ -214,26 +228,40 @@ export type Database = {
       courses: {
         Row: {
           created_at: string
+          created_by_user_id: string | null
           id: string
+          is_verified: boolean
           name_en: string | null
           name_fr: string
           updated_at: string
         }
         Insert: {
           created_at?: string
+          created_by_user_id?: string | null
           id?: string
+          is_verified?: boolean
           name_en?: string | null
           name_fr: string
           updated_at?: string
         }
         Update: {
           created_at?: string
+          created_by_user_id?: string | null
           id?: string
+          is_verified?: boolean
           name_en?: string | null
           name_fr?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "courses_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       friend_pairs: {
         Row: {
@@ -852,26 +880,40 @@ export type Database = {
       skills: {
         Row: {
           created_at: string
+          created_by_user_id: string | null
           id: string
+          is_verified: boolean
           name_en: string | null
           name_fr: string
           updated_at: string
         }
         Insert: {
           created_at?: string
+          created_by_user_id?: string | null
           id?: string
+          is_verified?: boolean
           name_en?: string | null
           name_fr: string
           updated_at?: string
         }
         Update: {
           created_at?: string
+          created_by_user_id?: string | null
           id?: string
+          is_verified?: boolean
           name_en?: string | null
           name_fr?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "skills_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_badges: {
         Row: {
@@ -1044,6 +1086,7 @@ export type Database = {
         Row: {
           academic_level_id: string | null
           auth_id: string
+          bio: string | null
           created_at: string
           email: string | null
           first_name: string | null
@@ -1056,6 +1099,7 @@ export type Database = {
         Insert: {
           academic_level_id?: string | null
           auth_id: string
+          bio?: string | null
           created_at?: string
           email?: string | null
           first_name?: string | null
@@ -1068,6 +1112,7 @@ export type Database = {
         Update: {
           academic_level_id?: string | null
           auth_id?: string
+          bio?: string | null
           created_at?: string
           email?: string | null
           first_name?: string | null

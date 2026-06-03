@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRealtimeQuery } from "@/hooks/use-realtime-query";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { useFriendships } from "@/hooks/use-friendships";
 import createSupabaseBrowserClient from "@/lib/supabase/create-supabase-browser-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@/i18n/navigation";
@@ -28,14 +29,206 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Heart, MessageCircle, Plus, Trash2 } from "lucide-react";
+import { Heart, MessageCircle, Plus, Trash2, Send } from "lucide-react";
 
 const FEED_QUERY_KEY = ["feed"] as const;
+
+type FeedAuthor = {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+} | null;
+
+type FeedComment = {
+  id: string;
+  content: string;
+  created_at: string;
+  author_user_id: string;
+  author: FeedAuthor;
+};
+
+type FeedPost = {
+  id: string;
+  title: string | null;
+  content: string;
+  post_type: string;
+  visibility: string;
+  created_at: string;
+  author_user_id: string;
+  author: FeedAuthor;
+  post_likes: { id: string; user_id: string }[];
+  post_comments: FeedComment[];
+};
+
+function getAuthorName(author: FeedAuthor): string {
+  if (!author) return "";
+  return `${author.first_name ?? ""} ${author.last_name ?? ""}`.trim();
+}
+
+function getAuthorInitials(author: FeedAuthor): string {
+  if (!author) return "?";
+  return (
+    (author.first_name?.charAt(0) ?? "") + (author.last_name?.charAt(0) ?? "")
+  );
+}
+
+function PostCard({
+  post,
+  currentUserId,
+  onLike,
+  onDelete,
+  onAddComment,
+}: {
+  post: FeedPost;
+  currentUserId: string | undefined;
+  onLike: (postId: string) => void;
+  onDelete: (postId: string) => void;
+  onAddComment: (postId: string, content: string) => Promise<void>;
+}) {
+  const t = useTranslations("Pages.FeedPage");
+  const [showComments, setShowComments] = useState(false);
+  const [commentDraft, setCommentDraft] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isLiked = post.post_likes.some((like) => like.user_id === currentUserId);
+  const isOwn = post.author_user_id === currentUserId;
+
+  async function handleSubmitComment() {
+    if (!commentDraft.trim()) return;
+    setIsSubmitting(true);
+    try {
+      await onAddComment(post.id, commentDraft.trim());
+      setCommentDraft("");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Avatar className="size-8">
+              <AvatarFallback className="text-xs">
+                {getAuthorInitials(post.author)}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <Link
+                href={`/profile/${post.author?.id}`}
+                className="text-sm font-medium hover:underline"
+              >
+                {getAuthorName(post.author)}
+              </Link>
+              <p className="text-xs text-muted-foreground">
+                {new Date(post.created_at).toLocaleString()}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline">{post.post_type}</Badge>
+            {isOwn && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onDelete(post.id)}
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {post.title && (
+          <CardTitle className="mb-2 text-base">{post.title}</CardTitle>
+        )}
+        <p className="whitespace-pre-wrap text-sm">{post.content}</p>
+        <div className="mt-4 flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            className={isLiked ? "text-primary" : ""}
+            onClick={() => onLike(post.id)}
+          >
+            <Heart className={`mr-1 size-4 ${isLiked ? "fill-current" : ""}`} />
+            {post.post_likes.length}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowComments((current) => !current)}
+          >
+            <MessageCircle className="mr-1 size-4" />
+            {post.post_comments.length}
+          </Button>
+        </div>
+
+        {showComments && (
+          <div className="mt-4 space-y-3 border-t pt-4">
+            <p className="text-sm font-medium">{t("comments")}</p>
+            {post.post_comments.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{t("no_comments")}</p>
+            ) : (
+              <div className="space-y-3">
+                {post.post_comments.map((comment) => (
+                  <div key={comment.id} className="flex items-start gap-2">
+                    <Avatar className="size-7">
+                      <AvatarFallback className="text-xs">
+                        {getAuthorInitials(comment.author)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="rounded-md bg-muted px-3 py-2">
+                      <Link
+                        href={`/profile/${comment.author?.id}`}
+                        className="text-xs font-medium hover:underline"
+                      >
+                        {getAuthorName(comment.author)}
+                      </Link>
+                      <p className="text-sm">{comment.content}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {currentUserId && (
+              <div className="flex items-center gap-2">
+                <Input
+                  value={commentDraft}
+                  onChange={(event) => setCommentDraft(event.target.value)}
+                  placeholder={t("write_comment")}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" && !event.shiftKey) {
+                      event.preventDefault();
+                      handleSubmitComment();
+                    }
+                  }}
+                />
+                <Button
+                  size="icon"
+                  onClick={handleSubmitComment}
+                  disabled={isSubmitting || !commentDraft.trim()}
+                  aria-label={t("post_comment")}
+                >
+                  <Send className="size-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function FeedPage() {
   const t = useTranslations("Pages.FeedPage");
   const { data: currentUser } = useCurrentUser();
+  const { data: friendships } = useFriendships(currentUser?.id);
   const queryClient = useQueryClient();
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -44,19 +237,22 @@ export default function FeedPage() {
   const [newPostType, setNewPostType] = useState<string>("ACHIEVEMENT");
   const [newPostVisibility, setNewPostVisibility] = useState<string>("PUBLIC");
 
-  const { data: posts, isLoading } = useRealtimeQuery({
+  const { data: posts, isLoading } = useRealtimeQuery<FeedPost[]>({
     queryKey: FEED_QUERY_KEY,
     queryFn: async () => {
       const supabase = createSupabaseBrowserClient();
       const { data, error } = await supabase
         .from("posts")
         .select(
-          `*, author:users!posts_author_user_id_fkey(id, first_name, last_name), post_likes(id, user_id), post_comments(id)`
+          `*,
+           author:users!posts_author_user_id_fkey(id, first_name, last_name),
+           post_likes(id, user_id),
+           post_comments(id, content, created_at, author_user_id, author:users!post_comments_author_user_id_fkey(id, first_name, last_name))`
         )
         .order("created_at", { ascending: false })
         .limit(50);
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as unknown as FeedPost[];
     },
     realtimeSubscriptions: [
       { table: "posts" },
@@ -64,6 +260,23 @@ export default function FeedPage() {
       { table: "post_comments" },
     ],
   });
+
+  const friendIds = useMemo(() => {
+    const ids = new Set<string>();
+    friendships?.friends.forEach((pair) => {
+      const otherId =
+        pair.requestor_user_id === currentUser?.id
+          ? pair.receiver_user_id
+          : pair.requestor_user_id;
+      ids.add(otherId);
+    });
+    return ids;
+  }, [friendships, currentUser?.id]);
+
+  const friendsPosts = useMemo(
+    () => posts?.filter((post) => friendIds.has(post.author_user_id)) ?? [],
+    [posts, friendIds]
+  );
 
   async function handleCreatePost() {
     if (!currentUser || !newPostContent.trim()) return;
@@ -112,6 +325,43 @@ export default function FeedPage() {
     const supabase = createSupabaseBrowserClient();
     await supabase.from("posts").delete().eq("id", postId);
     queryClient.invalidateQueries({ queryKey: FEED_QUERY_KEY });
+  }
+
+  async function handleAddComment(postId: string, content: string) {
+    if (!currentUser) return;
+    const supabase = createSupabaseBrowserClient();
+    const { error } = await supabase.from("post_comments").insert({
+      post_id: postId,
+      author_user_id: currentUser.id,
+      content,
+    });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    queryClient.invalidateQueries({ queryKey: FEED_QUERY_KEY });
+  }
+
+  function renderPosts(list: FeedPost[]) {
+    if (list.length === 0) {
+      return (
+        <p className="text-center text-muted-foreground">{t("no_posts")}</p>
+      );
+    }
+    return (
+      <div className="space-y-4">
+        {list.map((post) => (
+          <PostCard
+            key={post.id}
+            post={post}
+            currentUserId={currentUser?.id}
+            onLike={handleLike}
+            onDelete={handleDeletePost}
+            onAddComment={handleAddComment}
+          />
+        ))}
+      </div>
+    );
   }
 
   if (isLoading) {
@@ -168,7 +418,10 @@ export default function FeedPage() {
                     </SelectItem>
                   </SelectContent>
                 </Select>
-                <Select value={newPostVisibility} onValueChange={setNewPostVisibility}>
+                <Select
+                  value={newPostVisibility}
+                  onValueChange={setNewPostVisibility}
+                >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue />
                   </SelectTrigger>
@@ -183,10 +436,16 @@ export default function FeedPage() {
                 </Select>
               </div>
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setCreateDialogOpen(false)}
+                >
                   {t("cancel")}
                 </Button>
-                <Button onClick={handleCreatePost} disabled={!newPostContent.trim()}>
+                <Button
+                  onClick={handleCreatePost}
+                  disabled={!newPostContent.trim()}
+                >
                   {t("submit_post")}
                 </Button>
               </div>
@@ -195,94 +454,18 @@ export default function FeedPage() {
         </Dialog>
       </div>
 
-      {(!posts || posts.length === 0) && (
-        <p className="text-center text-muted-foreground">{t("no_posts")}</p>
-      )}
-
-      <div className="space-y-4">
-        {posts?.map(
-          (post: {
-            id: string;
-            title: string | null;
-            content: string;
-            post_type: string;
-            visibility: string;
-            created_at: string;
-            author_user_id: string;
-            author: { id: string; first_name: string | null; last_name: string | null } | null;
-            post_likes: { id: string; user_id: string }[];
-            post_comments: { id: string }[];
-          }) => {
-            const isLiked = post.post_likes.some(
-              (like) => like.user_id === currentUser?.id
-            );
-            const isOwn = post.author_user_id === currentUser?.id;
-
-            return (
-              <Card key={post.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="size-8">
-                        <AvatarFallback className="text-xs">
-                          {(post.author?.first_name?.charAt(0) ?? "") +
-                            (post.author?.last_name?.charAt(0) ?? "")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <Link
-                          href={`/profile/${post.author?.id}`}
-                          className="text-sm font-medium hover:underline"
-                        >
-                          {post.author?.first_name} {post.author?.last_name}
-                        </Link>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(post.created_at).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">{post.post_type}</Badge>
-                      {isOwn && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeletePost(post.id)}
-                        >
-                          <Trash2 className="size-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {post.title && (
-                    <CardTitle className="mb-2 text-base">{post.title}</CardTitle>
-                  )}
-                  <p className="whitespace-pre-wrap text-sm">{post.content}</p>
-                  <div className="mt-4 flex items-center gap-4">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className={isLiked ? "text-primary" : ""}
-                      onClick={() => handleLike(post.id)}
-                    >
-                      <Heart
-                        className={`mr-1 size-4 ${isLiked ? "fill-current" : ""}`}
-                      />
-                      {post.post_likes.length}
-                    </Button>
-                    <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <MessageCircle className="size-4" />
-                      {post.post_comments.length}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          }
-        )}
-      </div>
+      <Tabs defaultValue="general">
+        <TabsList>
+          <TabsTrigger value="general">{t("general_tab")}</TabsTrigger>
+          <TabsTrigger value="friends">{t("friends_tab")}</TabsTrigger>
+        </TabsList>
+        <TabsContent value="general" className="mt-4">
+          {renderPosts(posts ?? [])}
+        </TabsContent>
+        <TabsContent value="friends" className="mt-4">
+          {renderPosts(friendsPosts)}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

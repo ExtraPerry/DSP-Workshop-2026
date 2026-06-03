@@ -17,7 +17,14 @@ export default function DashboardPage() {
   const locale = useLocale();
   const { data: currentUser, isLoading: isUserLoading } = useCurrentUser();
 
-  const { data: upcomingSessions } = useRealtimeQuery({
+  type UpcomingSession = {
+    id: string;
+    title: string;
+    start_timestamp: string;
+    skill: { name_fr: string; name_en: string | null } | null;
+  };
+
+  const { data: upcomingSessions } = useRealtimeQuery<UpcomingSession[]>({
     queryKey: ["upcomingSessions", currentUser?.id],
     queryFn: async () => {
       const supabase = createSupabaseBrowserClient();
@@ -28,8 +35,8 @@ export default function DashboardPage() {
         .limit(5);
       if (error) throw error;
       return (data ?? [])
-        .map((row: { session: unknown }) => row.session)
-        .filter(Boolean);
+        .map((row: { session: UpcomingSession | null }) => row.session)
+        .filter((session): session is UpcomingSession => Boolean(session));
     },
     enabled: Boolean(currentUser?.id),
     realtimeSubscriptions: [{ table: "session_participants" }, { table: "sessions" }],
@@ -86,13 +93,7 @@ export default function DashboardPage() {
               </p>
             ) : (
               <div className="space-y-2">
-                {upcomingSessions.map(
-                  (session: {
-                    id: string;
-                    title: string;
-                    start_timestamp: string;
-                    skill: { name_fr: string; name_en: string | null } | null;
-                  }) => (
+                {upcomingSessions.map((session) => (
                     <Link
                       key={session.id}
                       href={`/sessions/${session.id}`}

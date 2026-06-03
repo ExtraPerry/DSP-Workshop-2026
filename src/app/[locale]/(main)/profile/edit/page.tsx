@@ -10,6 +10,7 @@ import { getLocalizedName } from "@/lib/localized-name";
 import createSupabaseBrowserClient from "@/lib/supabase/create-supabase-browser-client";
 import { useRouter } from "@/i18n/navigation";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -42,6 +43,7 @@ export default function ProfileEditPage() {
   const [firstName, setFirstName] = useState<string | null>(null);
   const [lastName, setLastName] = useState<string | null>(null);
   const [phone, setPhone] = useState<string | null>(null);
+  const [bio, setBio] = useState<string | null>(null);
   const [academicLevelId, setAcademicLevelId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -50,6 +52,7 @@ export default function ProfileEditPage() {
   const effectiveFirstName = firstName ?? profile?.first_name ?? "";
   const effectiveLastName = lastName ?? profile?.last_name ?? "";
   const effectivePhone = phone ?? profile?.phone ?? "";
+  const effectiveBio = bio ?? profile?.bio ?? "";
   const effectiveAcademicLevelId =
     academicLevelId ?? profile?.academic_level_id ?? "";
 
@@ -64,6 +67,7 @@ export default function ProfileEditPage() {
         first_name: effectiveFirstName || null,
         last_name: effectiveLastName || null,
         phone: effectivePhone || null,
+        bio: effectiveBio || null,
         academic_level_id: effectiveAcademicLevelId || null,
       })
       .eq("id", currentUser.id);
@@ -127,6 +131,16 @@ export default function ProfileEditPage() {
             <Input
               value={effectivePhone}
               onChange={(e) => setPhone(e.target.value)}
+            />
+          </Field>
+
+          <Field>
+            <FieldLabel>{t("bio")}</FieldLabel>
+            <Textarea
+              value={effectiveBio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder={t("bio_placeholder")}
+              rows={4}
             />
           </Field>
 

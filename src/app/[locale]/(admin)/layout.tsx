@@ -1,3 +1,4 @@
+import { AdminSubNav } from "@/components/admin/admin-sub-nav";
 import { Navbar } from "@/components/navbar";
 
 export default function AdminLayout({
@@ -8,6 +9,7 @@ export default function AdminLayout({
   return (
     <>
       <Navbar />
+      <AdminSubNav />
       {children}
     </>
   );

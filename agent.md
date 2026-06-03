@@ -21,7 +21,8 @@ DSP-Workshop-2026/
 ├── vitest.config.ts              # Vitest config (jsdom env, path aliases, setup file)
 ├── vitest.setup.ts               # Test setup (jest-dom matchers)
 ├── docs/
-│   └── backend_architecture.md   # Feature & DB design specs
+│   ├── architecture.md           # Feature & DB design specs (source of truth)
+│   └── projet_details.md         # Original project brief (French)
 ├── messages/
 │   ├── en.json                   # English translations
 │   └── fr.json                   # French translations
@@ -35,11 +36,16 @@ DSP-Workshop-2026/
 │   │   └── [locale]/
 │   │       ├── layout.tsx        # Locale layout (providers, font, metadata)
 │   │       ├── not-found.tsx     # Locale-aware 404
+│   │       ├── (public)/         # Public pages (PublicHeader, no Navbar)
+│   │       │   ├── layout.tsx
+│   │       │   ├── page.tsx      # Marketing landing page ("/")
+│   │       │   ├── about/, contact/, faq/, privacy-policy/, ...
 │   │       ├── (main)/           # Authenticated route group (renders Navbar)
-│   │       │   ├── layout.tsx    # Wraps children with <Navbar />
-│   │       │   ├── page.tsx      # Blank landing page ("/")
-│   │       │   └── dashboard/
-│   │       │       └── page.tsx  # Home dashboard (default page for logged-in users)
+│   │       │   ├── layout.tsx
+│   │       │   ├── dashboard/
+│   │       │   ├── matching/, sessions/, feed/, friends/, profile/, ...
+│   │       ├── (admin)/          # Admin route group (Navbar + role gate)
+│   │       │   └── admin/        # users, lookups, moderation, gamification, ...
 │   │       ├── login/
 │   │       │   ├── page.tsx
 │   │       │   └── login-form.tsx
@@ -49,20 +55,35 @@ DSP-Workshop-2026/
 │   │       └── verify-email/
 │   │           └── page.tsx
 │   ├── components/
-│   │   ├── navbar.tsx            # Top navigation (uses useCurrentUser)
+│   │   ├── navbar.tsx            # Main nav (useCurrentUser, useCurrentUserRole for admin link)
+│   │   ├── public-header.tsx
+│   │   ├── lookup-combobox.tsx   # Searchable/clearable/creatable lookup selector
+│   │   ├── date-time-picker.tsx
+│   │   ├── language-switcher.tsx
+│   │   ├── theme-toggle.tsx
+│   │   ├── admin/                # lookup-table-manager, entity-manager
 │   │   └── ui/                   # shadcn components (installed via CLI)
 │   ├── contexts/
 │   │   ├── tanstack-query-client.tsx  # React Query provider (global staleTime)
 │   │   └── theme-provider.tsx         # next-themes provider wrapper
 │   ├── hooks/
-│   │   └── use-current-user.ts   # Current user query + Realtime invalidation
+│   │   ├── use-realtime-query.ts # Canonical TanStack Query + Realtime invalidation
+│   │   ├── use-current-user.ts   # Composes useRealtimeQuery + auth listener
+│   │   ├── use-current-user-role.ts
+│   │   ├── use-user-profile.ts
+│   │   ├── use-friendships.ts
+│   │   └── use-lookups.ts        # Skills/courses/campuses + create* helpers
 │   ├── i18n/
 │   │   ├── routing.ts            # Locale config (en, fr)
 │   │   ├── request.ts            # Server-side locale resolver
 │   │   └── navigation.ts         # Locale-aware Link, redirect, useRouter, usePathname
 │   └── lib/
 │       ├── utils.ts              # cn() utility (clsx + tailwind-merge)
+│       ├── localized-name.ts
 │       ├── utils.test.ts         # Example Vitest unit test
+│       ├── admin/delete-user.ts  # Server action (service role)
+│       ├── friendships/send-friend-request.ts
+│       ├── notifications/resolve-notification-text.ts
 │       └── supabase/
 │           ├── create-supabase-browser-client.ts  # Client-side Supabase client
 │           ├── create-supabase-server-client.ts   # Server-side Supabase client (cookies)
@@ -85,11 +106,11 @@ DSP-Workshop-2026/
 
 - **Framework**: Next.js 16 App Router with React Compiler enabled (`reactCompiler: true` in `next.config.ts`).
 - **Styling**: Tailwind CSS v4 with CSS-first configuration via `src/app/globals.css`. There is no `tailwind.config.ts`; all theme tokens are defined as CSS custom properties using `@theme inline` and `:root` / `.dark` selectors.
-- **Theming / dark mode**: `next-themes`. The `ThemeProvider` wrapper lives in `src/contexts/theme-provider.tsx` and is mounted in the locale layout with `attribute="class"`, `defaultTheme="system"`, and `enableSystem`. The root `<html>` carries `suppressHydrationWarning`. Always style with the semantic theme tokens (e.g. `bg-background`, `text-foreground`, `text-muted-foreground`, `bg-primary`); never hardcode raw color values so both light and dark themes stay consistent.
+- **Theming / dark mode**: `next-themes`. The `ThemeProvider` wrapper lives in `src/contexts/theme-provider.tsx` and is mounted in the locale layout with `attribute="class"`, `defaultTheme="light"`, and `enableSystem`. User choice is persisted in localStorage. Always style with semantic theme tokens; never hardcode raw colors.
 - **UI Library**: shadcn v4 (radix-nova style). Components live in `src/components/ui/` and must always be installed via the CLI: `npx shadcn@latest add <component>`. Never manually create UI primitives that shadcn already provides.
 - **Icons**: Lucide React (`lucide-react`).
 - **Toasts**: Sonner via the shadcn `<Toaster />` wrapper.
-- **Internationalization**: next-intl v4 with a `[locale]` dynamic route segment. Supported locales are `en` (default) and `fr`. Translation files live in `messages/en.json` and `messages/fr.json`.
+- **Internationalization**: next-intl v4 with a `[locale]` dynamic route segment. Supported locales are `en` and `fr` (`defaultLocale: "fr"` in `src/i18n/routing.ts`). The user's locale is persisted in the `NEXT_LOCALE` cookie when they switch language. Translation files live in `messages/en.json` and `messages/fr.json`.
 - **Routing**: All pages live under `src/app/[locale]/`. For locale-aware navigation, always import from `@/i18n/navigation` which exports `Link`, `redirect`, `useRouter`, `usePathname`, and `getPathname`.
 - **State / Caching**: TanStack Query (`@tanstack/react-query`) for server state. A global default `staleTime` of 30 minutes is configured on the `QueryClient` in `src/contexts/tanstack-query-client.tsx`. Supabase Realtime subscriptions invalidate the query cache in real time; the 30 minute stale timeout acts as a fallback.
 - **Forms**: TanStack Form (`@tanstack/react-form`) combined with Zod (`zod`) for schema validation and error messages.
@@ -137,15 +158,15 @@ The provider tree is defined in `src/app/[locale]/layout.tsx`:
 | Table | Role |
 |---|---|
 | `academic_levels` | Lookup table for academic levels (bilingual: `name_fr`, `name_en`) |
-| `users` | Public user profile, linked to `auth.users` via `auth_id` |
+| `users` | Public user profile, linked to `auth.users` via `auth_id` (includes free-text `bio`) |
 | `user_roles` | User role assignment, enum: `USER`, `ADMIN` |
 | `users_skills` | Join table between users and skills (includes `user_skill_level` and description) |
 | `users_courses` | Join table between users and courses (includes date range) |
 | `users_campuses` | Join table between users and campuses |
 | `users_availabilities` | User availability slots (supports recurring days via `week_day_type` enum) |
-| `skills` | Lookup table for skills |
-| `courses` | Lookup table for courses (bilingual) |
-| `campuses` | Lookup table for campuses (bilingual) |
+| `skills` | Lookup table for skills (user-proposable; `is_verified` flag + `created_by_user_id`) |
+| `courses` | Lookup table for courses (bilingual; user-proposable; `is_verified` + `created_by_user_id`) |
+| `campuses` | Lookup table for campuses (bilingual; user-proposable; `is_verified` + `created_by_user_id`) |
 | `friend_pairs` | Confirmed friendship relation between two users |
 | `friend_requests` | Pending friend request from one user to another |
 | `match_requests` | Records a match attempt from one user to another for a specific skill |
@@ -204,6 +225,7 @@ The provider tree is defined in `src/app/[locale]/layout.tsx`:
 - Every table has RLS enabled.
 - Users can view/modify their own rows (scoped via `auth_id = auth.uid()` or subquery on `public.users`).
 - Lookup tables (academic_levels, skills, courses, campuses, session_types, badges, point_actions, challenges) are readable by all authenticated users.
+- Authenticated users may propose new `skills`, `courses`, and `campuses` (insert with `created_by_user_id = self` and `is_verified = false`); they cannot self-verify. Admins verify by setting `is_verified = true`. Unverified types are visible to everyone (flagged in the UI).
 - Sessions, posts (with visibility rules), leaderboard data are readable by all authenticated users.
 - FRIENDS_ONLY posts are only visible to the author's friends (resolved via `friend_pairs`).
 - Admins have full access (`for all`) on every table, gated by `public.is_user_admin()`.
@@ -217,7 +239,7 @@ The provider tree is defined in `src/app/[locale]/layout.tsx`:
   - Otherwise delegates to the next-intl middleware, forwarding refreshed auth cookies on every response.
 - **Public routes**: defined by the `PUBLIC_ROUTES` constant in `src/proxy.ts` (`/`, `/login`, `/register`, `/verify-email`, `/privacy-policy`, `/terms-of-service`, `/legal-notice`, `/accessibility`, `/contact`, `/about`, `/faq`). Add any new unauthenticated route here.
 - **Auth routes**: defined by the `AUTH_ROUTES` constant in `src/proxy.ts` (`/login`, `/register`, `/verify-email`). Authenticated users visiting these are redirected to `/dashboard`.
-- **Default authenticated page**: `/dashboard` is the home dashboard logged-in users land on (after login and from the navbar logo/home link). The `/` route is a blank landing page placeholder.
+- **Default authenticated page**: `/dashboard` is the home dashboard logged-in users land on (after login and from the navbar logo/home link). The `/` route is a **public** marketing landing page under `(public)/` (hero, feature cards, login/register CTAs).
 - **Admin routes**: routes starting with `/admin` are protected by an additional middleware check in `src/proxy.ts` that queries the `user_roles` table and redirects non-admin users to `/dashboard`.
 - **Auth server actions**: live in `src/lib/supabase/auth/` (`login-with-email.ts`, `register-with-email.ts`, `logout.ts`). They use `"use server"` and the server Supabase client. UI never calls `supabase.auth.*` directly for sign-in/up/out -- it calls these actions.
 - **Current user on the client**: use the `useCurrentUser` hook (`src/hooks/use-current-user.ts`). It listens to `onAuthStateChange` and a Realtime channel, and exposes the `public.users` row via TanStack Query under `CURRENT_USER_QUERY_KEY`. After login/logout, invalidate or reset that key (see `login-form.tsx` and `navbar.tsx`).
@@ -280,7 +302,7 @@ The provider tree is defined in `src/app/[locale]/layout.tsx`:
 
 - Server-state data hooks live in `src/hooks/`, one hook per resource (e.g. `use-current-user.ts`).
 - Export the query key as a named constant (e.g. `CURRENT_USER_QUERY_KEY`) so callers invalidate/reset the same key instead of duplicating the array literal.
-- The reference implementation is `src/hooks/use-current-user.ts`: it runs the query, subscribes to a Supabase Realtime `postgres_changes` channel, and calls `queryClient.invalidateQueries` on change. Follow this pattern for live data.
+- The canonical realtime primitive is `src/hooks/use-realtime-query.ts` (TanStack Query + `postgres_changes` invalidation). Resource hooks (e.g. `use-current-user.ts`) compose it and add auth-specific listeners where needed.
 - The global default `staleTime` (30 min, set on the `QueryClient`) is the safety-net fallback; Realtime invalidation is the primary freshness mechanism (Critical Rule #5).
 - Mutations should run through Supabase client calls (or server actions / edge functions for complex logic) and then invalidate the affected query keys.
 

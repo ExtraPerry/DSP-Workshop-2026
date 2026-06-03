@@ -6,12 +6,48 @@ import createSupabaseBrowserClient from "@/lib/supabase/create-supabase-browser-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  EntityManager,
+  type EntityField,
+} from "@/components/admin/entity-manager";
+
+const BADGES_QUERY_KEY = ["adminBadges"] as const;
+const CHALLENGES_QUERY_KEY = ["adminChallenges"] as const;
+const POINT_ACTIONS_QUERY_KEY = ["adminPointActions"] as const;
 
 export default function AdminGamificationPage() {
   const t = useTranslations("Pages.AdminGamificationPage");
 
+  const badgeFields: EntityField[] = [
+    { name: "name_fr", label: t("field_name_fr"), required: true },
+    { name: "name_en", label: t("field_name_en") },
+    { name: "description_fr", label: t("field_description_fr"), type: "textarea" },
+    { name: "description_en", label: t("field_description_en"), type: "textarea" },
+    { name: "criteria_description", label: t("field_criteria"), type: "textarea" },
+    { name: "points_reward", label: t("field_points"), type: "number", required: true },
+  ];
+
+  const challengeFields: EntityField[] = [
+    { name: "name_fr", label: t("field_name_fr"), required: true },
+    { name: "name_en", label: t("field_name_en") },
+    { name: "description_fr", label: t("field_description_fr"), type: "textarea" },
+    { name: "description_en", label: t("field_description_en"), type: "textarea" },
+    { name: "goal_type", label: t("field_goal_type"), required: true },
+    { name: "goal_count", label: t("field_goal_count"), type: "number", required: true },
+    { name: "points_reward", label: t("field_points"), type: "number", required: true },
+    { name: "start_date", label: t("field_start_date"), type: "date" },
+    { name: "end_date", label: t("field_end_date"), type: "date" },
+  ];
+
+  const pointActionFields: EntityField[] = [
+    { name: "action_key", label: t("field_action_key"), required: true },
+    { name: "name_fr", label: t("field_name_fr"), required: true },
+    { name: "name_en", label: t("field_name_en") },
+    { name: "points_value", label: t("field_points"), type: "number", required: true },
+  ];
+
   const { data: badges, isLoading: badgesLoading } = useRealtimeQuery({
-    queryKey: ["adminBadges"],
+    queryKey: BADGES_QUERY_KEY,
     queryFn: async () => {
       const supabase = createSupabaseBrowserClient();
       const { data, error } = await supabase.from("badges").select("*").order("name_fr");
@@ -22,7 +58,7 @@ export default function AdminGamificationPage() {
   });
 
   const { data: challenges, isLoading: challengesLoading } = useRealtimeQuery({
-    queryKey: ["adminChallenges"],
+    queryKey: CHALLENGES_QUERY_KEY,
     queryFn: async () => {
       const supabase = createSupabaseBrowserClient();
       const { data, error } = await supabase.from("challenges").select("*").order("name_fr");
@@ -33,10 +69,13 @@ export default function AdminGamificationPage() {
   });
 
   const { data: pointActions, isLoading: actionsLoading } = useRealtimeQuery({
-    queryKey: ["adminPointActions"],
+    queryKey: POINT_ACTIONS_QUERY_KEY,
     queryFn: async () => {
       const supabase = createSupabaseBrowserClient();
-      const { data, error } = await supabase.from("point_actions").select("*").order("action_key");
+      const { data, error } = await supabase
+        .from("point_actions")
+        .select("*")
+        .order("action_key");
       if (error) throw error;
       return data ?? [];
     },
@@ -71,18 +110,17 @@ export default function AdminGamificationPage() {
               <CardTitle>{t("badges_tab")}</CardTitle>
             </CardHeader>
             <CardContent>
-              {(!badges || badges.length === 0) ? (
-                <p className="text-muted-foreground">{t("no_items")}</p>
-              ) : (
-                <div className="space-y-2">
-                  {badges.map((badge: { id: string; name_fr: string; name_en: string | null; points_reward: number }) => (
-                    <div key={badge.id} className="flex items-center justify-between rounded-md border p-3">
-                      <span className="font-medium">{badge.name_fr}</span>
-                      <span className="text-sm text-muted-foreground">+{badge.points_reward} pts</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <EntityManager
+                tableName="badges"
+                items={badges}
+                queryKey={BADGES_QUERY_KEY}
+                fields={badgeFields}
+                addLabel={t("add_badge")}
+                getPrimaryText={(item) => item.name_fr}
+                getSecondaryText={(item) =>
+                  `+${item.points_reward} ${t("field_points")}`
+                }
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -93,20 +131,17 @@ export default function AdminGamificationPage() {
               <CardTitle>{t("challenges_tab")}</CardTitle>
             </CardHeader>
             <CardContent>
-              {(!challenges || challenges.length === 0) ? (
-                <p className="text-muted-foreground">{t("no_items")}</p>
-              ) : (
-                <div className="space-y-2">
-                  {challenges.map((challenge: { id: string; name_fr: string; goal_count: number; points_reward: number }) => (
-                    <div key={challenge.id} className="flex items-center justify-between rounded-md border p-3">
-                      <span className="font-medium">{challenge.name_fr}</span>
-                      <span className="text-sm text-muted-foreground">
-                        Goal: {challenge.goal_count} — +{challenge.points_reward} pts
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <EntityManager
+                tableName="challenges"
+                items={challenges}
+                queryKey={CHALLENGES_QUERY_KEY}
+                fields={challengeFields}
+                addLabel={t("add_challenge")}
+                getPrimaryText={(item) => item.name_fr}
+                getSecondaryText={(item) =>
+                  `${item.goal_type}: ${item.goal_count} — +${item.points_reward}`
+                }
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -117,21 +152,17 @@ export default function AdminGamificationPage() {
               <CardTitle>{t("point_actions_tab")}</CardTitle>
             </CardHeader>
             <CardContent>
-              {(!pointActions || pointActions.length === 0) ? (
-                <p className="text-muted-foreground">{t("no_items")}</p>
-              ) : (
-                <div className="space-y-2">
-                  {pointActions.map((action: { id: string; action_key: string; name_fr: string; points_value: number }) => (
-                    <div key={action.id} className="flex items-center justify-between rounded-md border p-3">
-                      <div>
-                        <span className="font-medium">{action.name_fr}</span>
-                        <code className="ml-2 text-xs text-muted-foreground">{action.action_key}</code>
-                      </div>
-                      <span className="text-sm text-muted-foreground">+{action.points_value} pts</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <EntityManager
+                tableName="point_actions"
+                items={pointActions}
+                queryKey={POINT_ACTIONS_QUERY_KEY}
+                fields={pointActionFields}
+                addLabel={t("add_action")}
+                getPrimaryText={(item) => item.name_fr}
+                getSecondaryText={(item) =>
+                  `${item.action_key} — +${item.points_value}`
+                }
+              />
             </CardContent>
           </Card>
         </TabsContent>

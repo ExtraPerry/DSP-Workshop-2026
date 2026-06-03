@@ -1,29 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { useSkills, useCampuses } from "@/hooks/use-lookups";
-import { getLocalizedName } from "@/lib/localized-name";
+import {
+  useSkills,
+  useCampuses,
+  useProposeSkill,
+  useProposeCampus,
+} from "@/hooks/use-lookups";
 import createSupabaseBrowserClient from "@/lib/supabase/create-supabase-browser-client";
 import { Link } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { LookupCombobox } from "@/components/lookup-combobox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, UserPlus } from "lucide-react";
 
@@ -40,13 +33,14 @@ interface MatchSuggestion {
 
 export default function MatchingPage() {
   const t = useTranslations("Pages.MatchingPage");
-  const locale = useLocale();
   const { data: currentUser } = useCurrentUser();
   const { data: skills } = useSkills();
   const { data: campuses } = useCampuses();
+  const proposeSkill = useProposeSkill();
+  const proposeCampus = useProposeCampus();
 
-  const [selectedSkillId, setSelectedSkillId] = useState<string>("");
-  const [selectedCampusId, setSelectedCampusId] = useState<string>("");
+  const [selectedSkillId, setSelectedSkillId] = useState<string | null>(null);
+  const [selectedCampusId, setSelectedCampusId] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<MatchSuggestion[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
@@ -108,33 +102,47 @@ export default function MatchingPage() {
       <Card>
         <CardContent className="flex flex-wrap items-end gap-4 pt-6">
           <div className="min-w-[200px] flex-1">
-            <Select value={selectedSkillId} onValueChange={setSelectedSkillId}>
-              <SelectTrigger>
-                <SelectValue placeholder={t("all_skills")} />
-              </SelectTrigger>
-              <SelectContent>
-                {skills?.map((skill) => (
-                  <SelectItem key={skill.id} value={skill.id}>
-                    {getLocalizedName(skill, locale)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <LookupCombobox
+              items={skills ?? []}
+              value={selectedSkillId}
+              onChange={setSelectedSkillId}
+              placeholder={t("all_skills")}
+              allowClear
+              allowCreate={Boolean(currentUser)}
+              onCreate={
+                currentUser
+                  ? async (name) => {
+                      const row = await proposeSkill.mutateAsync({
+                        name,
+                        createdByUserId: currentUser.id,
+                      });
+                      return row.id;
+                    }
+                  : undefined
+              }
+            />
           </div>
 
           <div className="min-w-[200px] flex-1">
-            <Select value={selectedCampusId} onValueChange={setSelectedCampusId}>
-              <SelectTrigger>
-                <SelectValue placeholder={t("all_campuses")} />
-              </SelectTrigger>
-              <SelectContent>
-                {campuses?.map((campus) => (
-                  <SelectItem key={campus.id} value={campus.id}>
-                    {getLocalizedName(campus, locale)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <LookupCombobox
+              items={campuses ?? []}
+              value={selectedCampusId}
+              onChange={setSelectedCampusId}
+              placeholder={t("all_campuses")}
+              allowClear
+              allowCreate={Boolean(currentUser)}
+              onCreate={
+                currentUser
+                  ? async (name) => {
+                      const row = await proposeCampus.mutateAsync({
+                        name,
+                        createdByUserId: currentUser.id,
+                      });
+                      return row.id;
+                    }
+                  : undefined
+              }
+            />
           </div>
 
           <Button onClick={handleSearch} disabled={isSearching}>

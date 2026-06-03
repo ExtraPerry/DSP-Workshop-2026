@@ -1,14 +1,18 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useFriendships } from "@/hooks/use-friendships";
 import createSupabaseBrowserClient from "@/lib/supabase/create-supabase-browser-client";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { friendshipsQueryKey } from "@/hooks/use-friendships";
+import { sendFriendRequest } from "@/lib/friendships/send-friend-request";
 import { Link } from "@/i18n/navigation";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -17,7 +21,7 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UserCheck, UserX, Eye } from "lucide-react";
+import { UserCheck, UserX, Eye, UserPlus, Search } from "lucide-react";
 import type { FriendUser } from "@/hooks/use-friendships";
 
 function getUserDisplayName(user: FriendUser | null): string {
@@ -39,6 +43,60 @@ export default function FriendsPage() {
   const { data: currentUser } = useCurrentUser();
   const { data: friendships, isLoading } = useFriendships(currentUser?.id);
   const queryClient = useQueryClient();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const { data: searchResults } = useQuery({
+    queryKey: ["userSearch", searchTerm],
+    enabled: searchTerm.trim().length >= 2,
+    queryFn: async () => {
+      const supabase = createSupabaseBrowserClient();
+      const term = `%${searchTerm.trim()}%`;
+      const { data, error } = await supabase
+        .from("users")
+        .select("id, first_name, last_name, email")
+        .or(
+          `first_name.ilike.${term},last_name.ilike.${term},email.ilike.${term}`
+        )
+        .limit(10);
+      if (error) throw error;
+      return (data ?? []) as FriendUser[];
+    },
+  });
+
+  const relationshipStatusByUserId = useMemo(() => {
+    const statuses = new Map<string, "friend" | "pending">();
+    friendships?.friends.forEach((pair) => {
+      const otherId =
+        pair.requestor_user_id === currentUser?.id
+          ? pair.receiver_user_id
+          : pair.requestor_user_id;
+      statuses.set(otherId, "friend");
+    });
+    [
+      ...(friendships?.outgoingRequests ?? []),
+      ...(friendships?.incomingRequests ?? []),
+    ].forEach((request) => {
+      const otherId =
+        request.requestor_user_id === currentUser?.id
+          ? request.receiver_user_id
+          : request.requestor_user_id;
+      if (!statuses.has(otherId)) statuses.set(otherId, "pending");
+    });
+    return statuses;
+  }, [friendships, currentUser?.id]);
+
+  async function handleSendRequest(receiverUserId: string) {
+    if (!currentUser) return;
+    try {
+      await sendFriendRequest(currentUser.id, receiverUserId);
+      toast.success(t("request_sent"));
+      queryClient.invalidateQueries({
+        queryKey: friendshipsQueryKey(currentUser.id),
+      });
+    } catch {
+      toast.error(t("no_search_results"));
+    }
+  }
 
   async function handleAcceptRequest(requestId: string, requestorUserId: string) {
     if (!currentUser) return;
@@ -86,6 +144,70 @@ export default function FriendsPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6">
       <h1 className="text-2xl font-semibold">{t("title")}</h1>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("search_title")}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder={t("search_placeholder")}
+              className="pl-9"
+            />
+          </div>
+
+          {searchTerm.trim().length >= 2 &&
+            (!searchResults || searchResults.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                {t("no_search_results")}
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {searchResults
+                  .filter((user) => user.id !== currentUser?.id)
+                  .map((user) => {
+                    const status = relationshipStatusByUserId.get(user.id);
+                    return (
+                      <div
+                        key={user.id}
+                        className="flex items-center justify-between rounded-md border p-3"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Avatar>
+                            <AvatarFallback>{getInitials(user)}</AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium">
+                            {getUserDisplayName(user)}
+                          </span>
+                        </div>
+                        {status === "friend" ? (
+                          <Button variant="outline" size="sm" disabled>
+                            {t("already_friends")}
+                          </Button>
+                        ) : status === "pending" ? (
+                          <Button variant="outline" size="sm" disabled>
+                            {t("request_pending")}
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            onClick={() => handleSendRequest(user.id)}
+                          >
+                            <UserPlus className="mr-1 size-4" />
+                            {t("send_request")}
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
+              </div>
+            ))}
+        </CardContent>
+      </Card>
 
       <Tabs defaultValue="friends">
         <TabsList>

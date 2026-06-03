@@ -13,11 +13,23 @@ import { Plus, Calendar, MapPin, Users } from "lucide-react";
 
 const SESSIONS_QUERY_KEY = ["sessions"] as const;
 
+type LocalizedLookup = { name_fr: string; name_en: string | null };
+
+type SessionListItem = {
+  id: string;
+  title: string;
+  status: string;
+  start_timestamp: string;
+  max_participants: number | null;
+  campus: LocalizedLookup | null;
+  skill: LocalizedLookup | null;
+};
+
 export default function SessionsPage() {
   const t = useTranslations("Pages.SessionsPage");
   const locale = useLocale();
 
-  const { data: sessions, isLoading } = useRealtimeQuery({
+  const { data: sessions, isLoading } = useRealtimeQuery<SessionListItem[]>({
     queryKey: SESSIONS_QUERY_KEY,
     queryFn: async () => {
       const supabase = createSupabaseBrowserClient();
@@ -28,7 +40,7 @@ export default function SessionsPage() {
         )
         .order("start_timestamp", { ascending: true });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as unknown as SessionListItem[];
     },
     realtimeSubscriptions: [{ table: "sessions" }],
   });
@@ -60,29 +72,25 @@ export default function SessionsPage() {
       )}
 
       <div className="space-y-4">
-        {sessions?.map((session: Record<string, unknown>) => (
-          <Link key={session.id as string} href={`/sessions/${session.id}`}>
+        {sessions?.map((session) => (
+          <Link key={session.id} href={`/sessions/${session.id}`}>
             <Card className="transition-colors hover:bg-muted/50">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">
-                    {session.title as string}
-                  </CardTitle>
-                  <Badge variant="secondary">
-                    {t(`status_${(session.status as string).toLowerCase().replace("_", "_")}` as "status_planned")}
-                  </Badge>
+                  <CardTitle className="text-lg">{session.title}</CardTitle>
+                  <Badge variant="secondary">{session.status}</Badge>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Calendar className="size-4" />
-                    {new Date(session.start_timestamp as string).toLocaleDateString(locale)}
+                    {new Date(session.start_timestamp).toLocaleDateString(locale)}
                   </span>
                   {session.campus && (
                     <span className="flex items-center gap-1">
                       <MapPin className="size-4" />
-                      {getLocalizedName(session.campus as { name_fr: string; name_en: string | null }, locale)}
+                      {getLocalizedName(session.campus, locale)}
                     </span>
                   )}
                   <span className="flex items-center gap-1">
@@ -93,7 +101,7 @@ export default function SessionsPage() {
                   </span>
                   {session.skill && (
                     <Badge variant="outline">
-                      {getLocalizedName(session.skill as { name_fr: string; name_en: string | null }, locale)}
+                      {getLocalizedName(session.skill, locale)}
                     </Badge>
                   )}
                 </div>

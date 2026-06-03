@@ -9,6 +9,7 @@
       "friends": "Amis",
       "notifications": "Notifications",
       "profile": "Profil",
+      "admin": "Admin",
       "logout": "Se déconnecter",
       "login": "Se connecter"
     },
@@ -22,6 +23,36 @@
       "label": "Changer de langue",
       "en": "English",
       "fr": "Français"
+    },
+    "LookupCombobox": {
+      "placeholder": "Sélectionner...",
+      "search_placeholder": "Rechercher ou ajouter...",
+      "empty": "Aucun résultat.",
+      "any": "Tous",
+      "unverified": "Non vérifié",
+      "create": "Créer « {name} »"
+    },
+    "DateTimePicker": {
+      "placeholder": "Choisir une date et une heure",
+      "time_label": "Heure"
+    },
+    "PublicHeader": {
+      "home": "Accueil",
+      "about": "À propos",
+      "faq": "FAQ",
+      "contact": "Contact",
+      "login": "Se connecter",
+      "register": "Commencer",
+      "logout": "Se déconnecter"
+    },
+    "Weekdays": {
+      "MONDAY": "Lun",
+      "TUESDAY": "Mar",
+      "WEDNESDAY": "Mer",
+      "THURSDAY": "Jeu",
+      "FRIDAY": "Ven",
+      "SATURDAY": "Sam",
+      "SUNDAY": "Dim"
     }
   },
   "MetaData": {
@@ -31,6 +62,20 @@
   "Pages": {
     "NotFoundPage": {
       "title": "Cette page n'a pas pu être trouvée."
+    },
+    "LandingPage": {
+      "hero_title": "Échangez vos compétences. Progressez ensemble.",
+      "hero_subtitle": "Le réseau d'apprentissage entre pairs pour les étudiants.",
+      "hero_description": "SkillSwap connecte les étudiants d'un même campus par leurs compétences complémentaires. Partagez ce que vous pouvez enseigner, découvrez ce que vous voulez apprendre, et soyez mis en relation pour des sessions d'apprentissage concrètes.",
+      "cta_get_started": "Commencer",
+      "cta_login": "Se connecter",
+      "features_title": "Comment ça marche",
+      "feature_matching_title": "Matching intelligent",
+      "feature_matching_text": "Soyez mis en relation avec des étudiants qui enseignent ce que vous voulez apprendre — et apprennent ce que vous savez enseigner.",
+      "feature_sessions_title": "Sessions d'apprentissage",
+      "feature_sessions_text": "Organisez et rejoignez des ateliers, des cours rapides et des clubs directement sur votre campus.",
+      "feature_gamification_title": "Apprenez et gagnez",
+      "feature_gamification_text": "Cumulez des points, débloquez des badges et grimpez au classement en enseignant et en apprenant."
     },
     "HomePage": {
       "hello_world": "Bonjour le Monde",
@@ -106,7 +151,21 @@
       "friends": "Amis",
       "member_since": "Membre depuis",
       "loading": "Chargement du profil...",
-      "not_found": "Utilisateur introuvable"
+      "not_found": "Utilisateur introuvable",
+      "bio": "Bio",
+      "no_bio": "Aucune bio pour le moment.",
+      "add": "Ajouter",
+      "remove": "Retirer",
+      "skill_description": "Description (optionnel)",
+      "start": "Début",
+      "end": "Fin",
+      "recurring_days": "Jours récurrents",
+      "add_skill": "Ajouter une compétence",
+      "add_course": "Ajouter une formation",
+      "add_campus": "Ajouter un campus",
+      "add_availability": "Ajouter une disponibilité",
+      "request_sent": "Demande envoyée",
+      "add_error": "Impossible d'enregistrer vos modifications."
     },
     "ProfileEditPage": {
       "title": "Modifier le profil",
@@ -116,6 +175,8 @@
       "phone": "Téléphone",
       "academic_level": "Niveau académique",
       "select_level": "Sélectionner un niveau",
+      "bio": "Bio",
+      "bio_placeholder": "Parlez de vous aux autres...",
       "save": "Enregistrer",
       "cancel": "Annuler",
       "success": "Profil mis à jour avec succès",
@@ -158,7 +219,14 @@
       "reject": "Rejeter",
       "cancel_request": "Annuler",
       "remove_friend": "Retirer",
-      "view_profile": "Voir le profil"
+      "view_profile": "Voir le profil",
+      "search_title": "Trouver des personnes",
+      "search_placeholder": "Rechercher par nom ou email...",
+      "send_request": "Envoyer une demande",
+      "request_sent": "Demande envoyée",
+      "no_search_results": "Aucun utilisateur trouvé",
+      "already_friends": "Amis",
+      "request_pending": "En attente"
     },
     "MatchingPage": {
       "title": "Trouver un match",
@@ -250,8 +318,11 @@
       "comment": "Commenter",
       "share": "Partager",
       "comments": "Commentaires",
+      "no_comments": "Aucun commentaire pour le moment.",
       "write_comment": "Écrire un commentaire...",
       "post_comment": "Publier",
+      "general_tab": "Général",
+      "friends_tab": "Amis",
       "delete_post": "Supprimer",
       "report_post": "Signaler",
       "loading": "Chargement du fil...",
@@ -294,8 +365,18 @@
       "no_notifications": "Aucune notification",
       "loading": "Chargement des notifications..."
     },
+    "AdminCommon": {
+      "generic_error": "Une erreur s'est produite. Veuillez réessayer.",
+      "error_not_authenticated": "Vous devez être connecté.",
+      "error_forbidden": "Vous n'avez pas la permission d'effectuer cette action.",
+      "error_user_not_found": "Utilisateur introuvable.",
+      "role_user": "Utilisateur",
+      "role_admin": "Administrateur"
+    },
     "AdminPage": {
       "title": "Tableau de bord Admin",
+      "overview": "Vue d'ensemble",
+      "sub_nav_label": "Sections admin",
       "users": "Utilisateurs",
       "moderation": "Modération",
       "lookups": "Tables de référence",
@@ -325,7 +406,17 @@
       "delete": "Supprimer",
       "confirm_delete": "Êtes-vous sûr de vouloir supprimer cet utilisateur ?",
       "no_users": "Aucun utilisateur trouvé",
-      "loading": "Chargement des utilisateurs..."
+      "loading": "Chargement des utilisateurs...",
+      "cancel": "Annuler",
+      "deleted": "Utilisateur supprimé",
+      "delete_failed": "Impossible de supprimer l'utilisateur",
+      "updated": "Utilisateur mis à jour",
+      "details": "Détails de l'utilisateur",
+      "bio": "Bio",
+      "back": "Retour aux utilisateurs",
+      "role_user": "Utilisateur",
+      "role_admin": "Administrateur",
+      "user_id": "Identifiant utilisateur"
     },
     "AdminModerationPage": {
       "title": "Modération de contenu",
@@ -337,7 +428,23 @@
       "resolve": "Résoudre",
       "dismiss": "Rejeter",
       "resolution_note": "Note de résolution",
-      "loading": "Chargement des signalements..."
+      "loading": "Chargement des signalements...",
+      "remove_content": "Supprimer le contenu",
+      "suspend_offender": "Suspendre l'auteur",
+      "content_not_found": "Contenu introuvable",
+      "resolved": "Signalement résolu",
+      "dismissed": "Signalement rejeté",
+      "content_removed": "Contenu supprimé",
+      "offender_suspended": "Auteur suspendu",
+      "warn_offender": "Avertir l'auteur",
+      "offender_warned": "Avertissement envoyé à l'auteur",
+      "warn_notification_title": "Avertissement de modération",
+      "warn_notification_body": "Votre contenu a été signalé pour : {reason}. Veuillez consulter nos règles de la communauté.",
+      "entity_type_post": "Publication",
+      "entity_type_comment": "Commentaire",
+      "report_status_PENDING": "En attente",
+      "report_status_RESOLVED": "Résolu",
+      "report_status_DISMISSED": "Rejeté"
     },
     "AdminLookupsPage": {
       "title": "Tables de référence",
@@ -354,13 +461,51 @@
       "save": "Enregistrer",
       "cancel": "Annuler",
       "confirm_delete": "Êtes-vous sûr ?",
-      "no_items": "Aucun élément"
+      "no_items": "Aucun élément",
+      "search_placeholder": "Rechercher...",
+      "add_title": "Ajouter un élément",
+      "edit_title": "Modifier l'élément",
+      "verify": "Vérifier",
+      "reject": "Rejeter",
+      "verified": "Vérifié",
+      "unverified": "Non vérifié",
+      "pending_section": "En attente de vérification",
+      "proposed_by": "Proposé par un utilisateur"
     },
     "AdminSessionsPage": {
       "title": "Supervision des sessions",
       "no_sessions": "Aucune session",
       "cancel_session": "Annuler la session",
-      "loading": "Chargement des sessions..."
+      "loading": "Chargement des sessions...",
+      "search_placeholder": "Rechercher par titre...",
+      "filter_status": "Filtrer par statut",
+      "all_statuses": "Tous les statuts",
+      "status_planned": "Planifiée",
+      "status_in_progress": "En cours",
+      "status_completed": "Terminée",
+      "status_cancelled": "Annulée",
+      "change_status": "Changer le statut",
+      "delete": "Supprimer",
+      "confirm_delete": "Supprimer cette session ?",
+      "cancel": "Annuler",
+      "updated": "Session mise à jour",
+      "deleted": "Session supprimée",
+      "edit": "Modifier",
+      "save": "Enregistrer",
+      "edit_session": "Modifier la session",
+      "edit_validation_error": "Veuillez remplir tous les champs obligatoires.",
+      "field_title": "Titre",
+      "field_description": "Description",
+      "field_session_type": "Type de session",
+      "field_skill": "Compétence",
+      "field_campus": "Campus",
+      "field_location": "Lieu",
+      "field_max_participants": "Participants max.",
+      "field_start": "Début",
+      "field_end": "Fin",
+      "select_session_type": "Sélectionner un type",
+      "select_skill": "Sélectionner une compétence",
+      "select_campus": "Sélectionner un campus"
     },
     "AdminGamificationPage": {
       "title": "Gestion de la gamification",
@@ -371,7 +516,26 @@
       "add_challenge": "Ajouter un défi",
       "add_action": "Ajouter une action",
       "no_items": "Aucun élément",
-      "loading": "Chargement..."
+      "loading": "Chargement...",
+      "add": "Ajouter",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "confirm_delete": "Supprimer cet élément ?",
+      "add_title": "Ajouter un élément",
+      "edit_title": "Modifier l'élément",
+      "field_name_fr": "Nom (FR)",
+      "field_name_en": "Nom (EN)",
+      "field_description_fr": "Description (FR)",
+      "field_description_en": "Description (EN)",
+      "field_criteria": "Critères",
+      "field_points": "Points",
+      "field_action_key": "Clé d'action",
+      "field_goal_type": "Type d'objectif",
+      "field_goal_count": "Nombre d'objectifs",
+      "field_start_date": "Date de début",
+      "field_end_date": "Date de fin"
     },
     "AdminNotificationsPage": {
       "title": "Notifications de diffusion",
@@ -382,9 +546,17 @@
       "all_users": "Tous les utilisateurs",
       "by_campus": "Par campus",
       "by_course": "Par formation",
+      "by_role": "Par rôle",
+      "select_campus": "Sélectionner un campus",
+      "select_course": "Sélectionner une formation",
+      "select_role": "Sélectionner un rôle",
       "send": "Envoyer",
       "history": "Historique des diffusions",
-      "no_history": "Aucune diffusion envoyée"
+      "no_history": "Aucune diffusion envoyée",
+      "sent_success": "Diffusion envoyée",
+      "no_recipients": "Aucun destinataire pour ce filtre",
+      "recipients": "destinataires",
+      "sending": "Envoi..."
     },
     "PrivacyPolicyPage": {
       "title": "Politique de confidentialité",

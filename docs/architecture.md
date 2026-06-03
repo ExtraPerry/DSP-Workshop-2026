@@ -84,6 +84,7 @@ erDiagram
 | first_name | text | nullable | |
 | last_name | text | nullable | |
 | phone | text | nullable | Synced from auth via trigger |
+| bio | text | nullable | Free-text biography, edited from the profile edit page |
 | academic_level_id | uuid | nullable, FK academic_levels | |
 | suspended_at | timestamptz | nullable | Set by admin to suspend user |
 | created_at | timestamptz | NOT NULL, default now() | |
@@ -106,8 +107,12 @@ erDiagram
 | id | uuid | PK | |
 | name_fr | text | NOT NULL | French label |
 | name_en | text | nullable | English label |
+| is_verified | boolean | NOT NULL, default false | True once an admin verifies a user-proposed skill (seeded rows are verified) |
+| created_by_user_id | uuid | nullable, FK users | The user who proposed the skill, or null for seeded/admin skills |
 | created_at | timestamptz | NOT NULL | |
 | updated_at | timestamptz | NOT NULL | |
+
+User-proposable: authenticated users may insert a row with `created_by_user_id = self` and `is_verified = false`; only admins can set `is_verified = true`.
 
 #### `courses`
 
@@ -116,6 +121,8 @@ erDiagram
 | id | uuid | PK | |
 | name_fr | text | NOT NULL | French label |
 | name_en | text | nullable | English label |
+| is_verified | boolean | NOT NULL, default false | True once an admin verifies a user-proposed course (seeded rows are verified) |
+| created_by_user_id | uuid | nullable, FK users | The user who proposed the course, or null for seeded/admin courses |
 | created_at | timestamptz | NOT NULL | |
 | updated_at | timestamptz | NOT NULL | |
 
@@ -126,6 +133,8 @@ erDiagram
 | id | uuid | PK | |
 | name_fr | text | NOT NULL | French label |
 | name_en | text | nullable | English label |
+| is_verified | boolean | NOT NULL, default false | True once an admin verifies a user-proposed campus (seeded rows are verified) |
+| created_by_user_id | uuid | nullable, FK users | The user who proposed the campus, or null for seeded/admin campuses |
 | created_at | timestamptz | NOT NULL | |
 | updated_at | timestamptz | NOT NULL | |
 
@@ -732,21 +741,19 @@ User-submitted reports on posts or comments for moderation review.
 
 | Route | Purpose | Status |
 |-------|---------|--------|
-| `/` | Blank landing page (placeholder for future public content) | DONE |
+| `/` | Public marketing landing page (hero, features, login/register CTAs) | DONE |
 | `/dashboard` | Home dashboard (activity feed, quick stats, upcoming sessions). Default page for logged-in users. | DONE |
-| `/profile/:uuid` | User profile (skills, availabilities, badges, stats) | DONE |
-| `/profile/edit` | Edit own profile | DONE |
+| `/profile/[id]` | User profile (skills, courses, campuses, availabilities, bio; own profile: add/remove) | DONE |
+| `/profile/edit` | Edit own profile (name, phone, academic level, bio) | DONE |
 | `/matching` | Skill matching hub (search + algorithm suggestions) | DONE |
 | `/sessions` | Browse/manage sessions | DONE |
-| `/sessions/:uuid` | Session detail | DONE |
+| `/sessions/[id]` | Session detail | DONE |
 | `/sessions/create` | Create new session | DONE |
 | `/feed` | Social feed (global + friends filter) | DONE |
 | `/challenges` | Active challenges + progress | DONE |
 | `/leaderboard` | Points ranking | DONE |
 | `/notifications` | Notification center | DONE |
-| `/friends` | Friend list + requests | DONE |
-| `/campus/:uuid` | Campus detail page | DONE |
-| `/courses/:uuid` | Course detail page | DONE |
+| `/friends` | Friend list, requests, and user search to send requests | DONE |
 
 ### Admin Pages (ADMIN Role Required)
 
@@ -754,7 +761,7 @@ User-submitted reports on posts or comments for moderation review.
 |-------|---------|--------|
 | `/admin` | Admin dashboard overview | DONE |
 | `/admin/users` | User management (list, search, filter) | DONE |
-| `/admin/users/:uuid` | User detail + actions (edit role, suspend, delete) | DONE |
+| `/admin/users/[id]` | User detail + actions (edit role, suspend, delete) | DONE |
 | `/admin/moderation` | Content reports queue | DONE |
 | `/admin/lookups` | Lookup tables management | DONE |
 | `/admin/sessions` | Session oversight | DONE |
